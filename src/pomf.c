@@ -16,8 +16,10 @@
 
 // Forward Declarations //
 #define BUFFER_SIZE 256
+
 void
 usage (int status) {
+
     fputs("Usage: pomf <file>\n",
           (status == 0 ? stdout : stderr));
     exit(status);
@@ -48,6 +50,7 @@ write_data_buffer (void * ptr, size_t size, size_t nmemb, void * stream) {
 // Main Function //
 int
 main (int argc, char * argv []) {
+
     if ( argc <= 1 ) { 
         usage(1);
     } else if ( argv[1][0] == '-' ) {
