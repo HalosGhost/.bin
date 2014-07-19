@@ -52,6 +52,7 @@ int main (int argc, char * argv []) {
         { "help", no_argument,   0, 'h' },
         { "ipv4", no_argument,   0, '4' },
         { "ipv6", no_argument,   0, '6' },
+		{ 0,	  0,			 0,	0   },
     };
 
     int i = 0;
