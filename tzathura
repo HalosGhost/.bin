@@ -1,0 +1,4 @@
+#!/usr/bin/bash
+
+[[ -z $((xprop -id $(</tmp/zathura.xid)) 2>/dev/null) ]] && tabbed -f -p s+1 -n "docs" -d > /tmp/zathura.xid
+exec zathura -e $(</tmp/zathura.xid) $( [[  "$1"  ]] && echo "$1") &
