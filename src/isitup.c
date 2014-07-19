@@ -26,7 +26,7 @@ void _usage (int status) {
           "  -v, --verbose\tprint very verbosely\n\n"
           "URI should be given as the domain name and TLD only\n\n"
           "exit codes:\tURI appears {0: up, 1: down, 2: invalid}\n",
-		  (status == 0 ? stdout : stderr));
+          (status == 0 ? stdout : stderr));
     exit(status);
 }
 
@@ -39,32 +39,28 @@ size_t write_function (const char * buffer, size_t size, size_t nmemb, char * us
 
 // Main Function //
 int main (int argc, char ** argv) {
-    static int flag_quiet;
-    static int flag_verbose;
+    int flag_quiet;
+    int flag_verbose;
 
     if ( argc <= 1 ) { 
-		_usage(1);
-	} else {
-        int c = 0;
-        
-        while ( c != -1 ) {
-            static struct option options [] = {
-                /* Flags */
-                { "help",     no_argument,         0, 'h' },
-                { "quiet",    no_argument,         0, 'q' },
-                { "verbose",  no_argument,         0, 'v' },
-                /* Switches */
-                { "uri",      required_argument,   0, 'u' },
-                { 0,          0,                   0, 0   },
-            };
+        _usage(1);
+    } else {
+        static struct option os [] = {              
+            /* Flags */                                  
+            { "help",     no_argument,         0, 'h' }, 
+            { "quiet",    no_argument,         0, 'q' }, 
+            { "verbose",  no_argument,         0, 'v' }, 
+            /* Switches */                               
+            { "uri",      required_argument,   0, 'u' }, 
+            { 0,          0,                   0, 0   }, 
+        };                                               
 
-            int opt_index = 0;
-
-            c = getopt_long(argc, argv, "hqvu:", options, &opt_index);
+        for ( int c = 0, i = 0; c != -1;
+              c = getopt_long(argc, argv, "hqvu:", os, &i) ) {
 
             switch ( c ) {
                 case 'h':
-					_usage(0);
+                    _usage(0);
                     break;
 
                 case 'q':
@@ -114,10 +110,10 @@ int main (int argc, char ** argv) {
             if ( !flag_quiet ) {
                 printf("%s:%d ", ip_addr, port);
                 if ( status > 1 ) { 
-					printf("appears down\n"); 
-				} else { 
-					printf("(%d after %lgs)\n", http_response, response_time); 
-				}
+                    printf("appears down\n"); 
+                } else { 
+                    printf("(%d after %lgs)\n", http_response, response_time); 
+                }
             }
         }
     }
