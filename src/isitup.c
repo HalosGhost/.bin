@@ -39,8 +39,8 @@ size_t write_function (const char * buffer, size_t size, size_t nmemb, char * us
 
 // Main Function //
 int main (int argc, char ** argv) {
-    int flag_quiet;
-    int flag_verbose;
+    int flag_quiet = 0;
+    int flag_verbose = 0;
 
     if ( argc <= 1 ) { 
         _usage(1);
