@@ -10,9 +10,10 @@
 #include <string.h>
 #include <curl/curl.h>
 
-// TODO: Add getopt support for progress bars/verbosity
-// TODO: Add json parsing and curl WRITE_FUNCTION for correctly 
-//       returning the URL
+/**
+ * TODO: Getopt support?
+ * TODO: JSON parsing?
+ */
 
 // Forward Declarations //
 #define BUFFER_SIZE 256
@@ -30,21 +31,14 @@ struct json_write_result {
     int position;
 };
 
-// Function drawn from Petri Lehtinen's GitHub Jansson example
-static 
-size_t 
-write_data_buffer (void * ptr, size_t size, size_t nmemb, void * stream) {
+static
+size_t
+write_function (char * buffer, size_t size, size_t nmemb, char * userp) {
 
-    struct json_write_result * result = (struct json_write_result * )stream;
-    if ( result->position + size * nmemb >= BUFFER_SIZE - 1 ) {
-        fprintf(stderr, "Write Buffer is too small\n");
-        return 0;
-    }
-
-    memcpy(result->data + result->position, ptr, size * nmemb);
-    result->position += size * nmemb;
-
-    return size * nmemb;
+    char * string = userp;
+    size_t length = size * nmemb;
+    strncat(string, buffer, length);
+    return length;
 }
 
 // Main Function //
@@ -75,10 +69,7 @@ main (int argc, char * argv []) {
                  CURLFORM_FILE, argv[1],
                  CURLFORM_END);
 
-    char * data = calloc(1, BUFFER_SIZE);
-    struct json_write_result written_result;
-    written_result.data = data;
-    written_result.position = 0;
+    char written_result [BUFFER_SIZE] = { '\0' };
 
     curl_easy_setopt(handle, CURLOPT_URL, "http://pomf.se/upload.php");
     curl_easy_setopt(handle, CURLOPT_NOPROGRESS, 1L);  
@@ -86,7 +77,7 @@ main (int argc, char * argv []) {
     curl_easy_setopt(handle, CURLOPT_HTTPPOST, post);
     curl_easy_setopt(handle, CURLOPT_MAXREDIRS, 50L);
     curl_easy_setopt(handle, CURLOPT_TCP_KEEPALIVE, 1L);
-    curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_data_buffer);
+    curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_function);
     curl_easy_setopt(handle, CURLOPT_WRITEDATA, &written_result);
 
     res = curl_easy_perform(handle);
@@ -96,12 +87,8 @@ main (int argc, char * argv []) {
     post = NULL;
 
     char url [BUFFER_SIZE];
-    sscanf(written_result.data, "%*[^[][%*[^,],%*[^,],%*[^:]:\"%[^\"]", url);
+    sscanf(written_result, "%*[^[][%*[^,],%*[^,],%*[^:]:\"%[^\"]", url);
     printf("http://a.pomf.se/%s\n", url);
-
-    if ( written_result.data ) { 
-        free(written_result.data); 
-    }
 
     return (int )res;
 }
