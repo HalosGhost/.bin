@@ -17,16 +17,17 @@
 char uri [BUFFER_SIZE] = {'\0'};
 
 // Usage //
-void _usage (void) {
+void _usage (int status) {
     fputs("Usage: isitup [-h] [-q] [-v] [-u URI]\n\n"
           "Options:\n"
-          "-h, --help\tprint this help and exit\n"
-          "-q, --quiet\tprint nothing\n"
-          "-u, --uri\tcheck status of URI\n"
-          "-v, --verbose\tprint very verbosely\n\n"
+          "  -h, --help\tprint this help and exit\n"
+          "  -q, --quiet\tprint nothing\n"
+          "  -u, --uri\tcheck status of URI\n"
+          "  -v, --verbose\tprint very verbosely\n\n"
           "URI should be given as the domain name and TLD only\n\n"
-          "exit codes:\tURI appears {0: up, 1: down, 2: invalid}\n", stderr);
-    exit(0);
+          "exit codes:\tURI appears {0: up, 1: down, 2: invalid}\n",
+		  (status == 0 ? stdout : stderr));
+    exit(status);
 }
 
 size_t write_function (const char * buffer, size_t size, size_t nmemb, char * userp) {
@@ -38,12 +39,11 @@ size_t write_function (const char * buffer, size_t size, size_t nmemb, char * us
 
 // Main Function //
 int main (int argc, char ** argv) {
-    static int flag_help;
     static int flag_quiet;
     static int flag_verbose;
 
     if ( argc <= 1 ) { 
-		flag_help = 1; 
+		_usage(1);
 	} else {
         int c = 0;
         
@@ -64,7 +64,7 @@ int main (int argc, char ** argv) {
 
             switch ( c ) {
                 case 'h':
-                    flag_help = 1;
+					_usage(0);
                     break;
 
                 case 'q':
@@ -84,7 +84,7 @@ int main (int argc, char ** argv) {
         }
     }
 
-    if ( flag_help || !*uri ) _usage();
+    if ( !*uri ) _usage(1);
 
     curl_global_init(CURL_GLOBAL_ALL);
     CURL * handle = curl_easy_init();
