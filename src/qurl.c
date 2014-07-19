@@ -20,10 +20,10 @@ char url [BUFFER_SIZE] = {'\0'};
 void _usage (void) {
     fputs("Usage: qurl [-h] [-q] [-v] [-u URL]\n\n"
           "Options:\n"
-          "-h, --help\tprint this help and exit\n"
-          "-q, --quiet\tprint less\n"
-          "-u, --url\tcheck status of URL\n"
-          "-v, --verbose\tprint very verbosely\n\n"
+          "  -h, --help\tprint this help and exit\n"
+          "  -q, --quiet\tprint less\n"
+          "  -u, --url\tcheck status of URL\n"
+          "  -v, --verbose\tprint very verbosely\n\n"
           "URL must include the protocol (e.g., http://)\n", stderr);
     exit(0);
 }
