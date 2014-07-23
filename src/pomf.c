@@ -12,7 +12,7 @@
 
 /**
  * TODO: Getopt support?
- * TODO: JSON parsing?
+ * TODO: stdin support
  */
 
 // Forward Declarations //
@@ -25,11 +25,6 @@ usage (int status) {
           (status == 0 ? stdout : stderr));
     exit(status);
 }
-
-struct json_write_result {
-    char * data;
-    int position;
-};
 
 static
 size_t
