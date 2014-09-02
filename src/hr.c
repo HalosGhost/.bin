@@ -23,7 +23,7 @@ main (int argc, char * argv []) {
         } printf("\n");
     } else {
         for ( int i = 1; i < argc; i ++ ) {
-            for ( int j = 0; j < (COLS/strlen(argv[i])); j ++ ) {
+            for ( unsigned int j = 0; j < (COLS/strlen(argv[i])); j ++ ) {
                 printf(argv[i]);
             } printf("\n");
         }
