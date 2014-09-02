@@ -1,5 +1,6 @@
-CFLAGS += -Os -Wall -Wpedantic -std=c11
+CFLAGS += -Os -Wall -Wextra -std=c11
 LIBS += `pkg-config --libs-only-l libcurl`
-SRC = hr.c isitup.c lsip.c pomf.c qurl.c sicolor.c pipes.c
+SRC = hr.c isitup.c lsip.c pomf.c qurl.c sicolor.c
+#SRC = hr.c isitup.c lsip.c pomf.c qurl.c sicolor.c pipes.c
 
 : foreach $(SRC) | ansicolor.h |> gcc $(CFLAGS) $(LIBS) %f -o %o |> %B.out
