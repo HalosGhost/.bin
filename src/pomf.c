@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include <curl/curl.h>
 
 /**
@@ -17,6 +18,7 @@
 
 // Forward Declarations //
 #define BUFFER_SIZE 256
+#define MAX_FILE_SIZE 52428800
 
 void
 usage (int status) {
@@ -40,9 +42,14 @@ write_function (char * buffer, size_t size, size_t nmemb, char * userp) {
 int
 main (int argc, char * argv []) {
 
+    //FILE * input;
+
     if ( argc <= 1 ) { 
         usage(1);
     } else if ( argv[1][0] == '-' ) {
+        //if ( strlen(argv[1]) == 1 ) {
+        //  input = stdin;
+        //}
         if ( argv[1][1] == 'h' || argv[1][2] == 'h' ) {
             usage(0);
         }
