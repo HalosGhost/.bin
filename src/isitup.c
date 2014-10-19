@@ -11,31 +11,16 @@
 #include <curl/curl.h>
 #include <getopt.h>
 
-// Variables //
+// Forward Declarations //
 #define BUFFER_SIZE 120
 
-char uri [BUFFER_SIZE] = {'\0'};
+static char uri [BUFFER_SIZE] = {'\0'};
 
-// Usage //
-void _usage (int status) {
-    fputs("Usage: isitup [-h] [-q] [-v] [-u URI]\n\n"
-          "Options:\n"
-          "  -h, --help\tprint this help and exit\n"
-          "  -q, --quiet\tprint nothing\n"
-          "  -u, --uri\tcheck status of URI\n"
-          "  -v, --verbose\tprint very verbosely\n\n"
-          "URI should be given as the domain name and TLD only\n\n"
-          "exit codes:\tURI appears {0: up, 1: down, 2: invalid}\n",
-          (status == 0 ? stdout : stderr));
-    exit(status);
-}
+static void
+_usage (int status) __attribute__((noreturn));
 
-size_t write_function (const char * buffer, size_t size, size_t nmemb, char * userp) {
-    char * string = userp;
-    size_t length = size * nmemb;
-    strncat(string, buffer, length);
-    return length;
-}
+static size_t
+write_function (const char * buffer, size_t size, size_t nmemb, char * userp);
 
 // Main Function //
 int main (int argc, char ** argv) {
@@ -61,7 +46,6 @@ int main (int argc, char ** argv) {
             switch ( c ) {
                 case 'h':
                     _usage(0);
-                    break;
 
                 case 'q':
                     flag_quiet = 1;
@@ -123,4 +107,26 @@ int main (int argc, char ** argv) {
 
     return (status-1);
 }
+
+// Function Definitions //
+void _usage (int status) {
+    fputs("Usage: isitup [-h] [-q] [-v] [-u URI]\n\n"
+          "Options:\n"
+          "  -h, --help\tprint this help and exit\n"
+          "  -q, --quiet\tprint nothing\n"
+          "  -u, --uri\tcheck status of URI\n"
+          "  -v, --verbose\tprint very verbosely\n\n"
+          "URI should be given as the domain name and TLD only\n\n"
+          "exit codes:\tURI appears {0: up, 1: down, 2: invalid}\n"
+          ,(status == 0 ? stdout : stderr));
+    exit(status);
+}
+
+size_t write_function (const char * buffer, size_t size, size_t nmemb, char * userp) {
+    char * string = userp;
+    size_t length = size * nmemb;
+    strncat(string, buffer, length);
+    return length;
+}
+
 // vim: set tabstop=4 shiftwidth=4 expandtab:

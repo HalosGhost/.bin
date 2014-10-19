@@ -11,36 +11,11 @@
 #include <curl/curl.h>
 
 // Forward Definitions //
-static void usage (int status) {
-    fputs("Usage: lsip [options]\n\n"
-          "Options:\n"
-          "  -a, --all\tcheck and print all addresses\n"
-          "  -h, --help\tprint this message and exit\n"
-          "  -4, --ipv4\tcheck only external ipv4 address\n"
-          "  -6, --ipv6\tcheck only external ipv6 address\n",
-          (status == 0 ? stdout : stderr));
-    exit(status);
-}
+static void
+usage (int status) __attribute__((noreturn));
 
-static void get_ip (long mode) {
-    CURL * handle = curl_easy_init();
-    CURLcode res;
-
-    if ( !handle ) { fputs("Failed to get CURL handle", stderr); };
-
-    curl_easy_setopt(handle, CURLOPT_URL, "https://icanhazip.com");
-    curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION, 1);
-    if ( mode ) { curl_easy_setopt(handle, CURLOPT_IPRESOLVE, mode); };
-
-    res = curl_easy_perform(handle);
-
-    if ( res != CURLE_OK ) {
-        fprintf(stderr, "Failed to fetch address: %s\n", 
-                curl_easy_strerror(res));
-    }
-
-    curl_easy_cleanup(handle);
-}
+static void
+get_ip (long mode);
 
 // Main Function //
 int main (int argc, char * argv []) {
@@ -55,13 +30,11 @@ int main (int argc, char * argv []) {
 		{ 0,	  0,			 0,	0   },
     };
 
-    int i = 0;
-
-    for ( int c = 0; c != -1; c = getopt_long(argc, argv, "ah46", os, &i) ) {
+    for ( int c = 0, i = 0; c != -1; 
+		  c = getopt_long(argc, argv, "ah46", os, &i) ) {
         switch ( c ) {
             case 'h':
                 usage(0);
-                break;
 
             case 'a':
                 ip_mode = 1;
@@ -100,4 +73,37 @@ int main (int argc, char * argv []) {
     curl_global_cleanup();
     return 0;
 }
+
+// Function Definitions //
+static void usage (int status) {
+    fputs("Usage: lsip [options]\n\n"
+          "Options:\n"
+          "  -a, --all\tcheck and print all addresses\n"
+          "  -h, --help\tprint this message and exit\n"
+          "  -4, --ipv4\tcheck only external ipv4 address\n"
+          "  -6, --ipv6\tcheck only external ipv6 address\n"
+          ,(status == 0 ? stdout : stderr));
+    exit(status);
+}
+
+static void get_ip (long mode) {
+    CURL * handle = curl_easy_init();
+    CURLcode res;
+
+    if ( !handle ) { fputs("Failed to get CURL handle", stderr); };
+
+    curl_easy_setopt(handle, CURLOPT_URL, "https://icanhazip.com");
+    curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION, 1);
+    if ( mode ) { curl_easy_setopt(handle, CURLOPT_IPRESOLVE, mode); };
+
+    res = curl_easy_perform(handle);
+
+    if ( res != CURLE_OK ) {
+        fprintf(stderr, "Failed to fetch address: %s\n", 
+                curl_easy_strerror(res));
+    }
+
+    curl_easy_cleanup(handle);
+}
+
 // vim: set tabstop=4 shiftwidth=4 expandtab:

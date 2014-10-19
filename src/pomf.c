@@ -12,31 +12,21 @@
 #include <curl/curl.h>
 
 /**
- * TODO: Getopt support?
- * TODO: stdin support
+ * TODO: 
+ * Getopt support?
+ * stdin support
+ * sanity check on filesize
  */
 
 // Forward Declarations //
 #define BUFFER_SIZE 256
-#define MAX_FILE_SIZE 52428800
+//#define MAX_FILE_SIZE 52428800
 
 void
-usage (int status) {
+usage (int status) __attribute__((noreturn));
 
-    fputs("Usage: pomf <file>\n",
-          (status == 0 ? stdout : stderr));
-    exit(status);
-}
-
-static
-size_t
-write_function (char * buffer, size_t size, size_t nmemb, char * userp) {
-
-    char * string = userp;
-    size_t length = size * nmemb;
-    strncat(string, buffer, length);
-    return length;
-}
+static size_t
+write_function (char * buffer, size_t size, size_t nmemb, char * userp);
 
 // Main Function //
 int
@@ -93,6 +83,25 @@ main (int argc, char * argv []) {
     printf("http://a.pomf.se/%s\n", url);
 
     return (int )res;
+}
+
+// Function Definitions //
+void
+usage (int status) {
+
+    fputs("Usage: pomf <file>\n",
+          (status == 0 ? stdout : stderr));
+    exit(status);
+}
+
+static
+size_t
+write_function (char * buffer, size_t size, size_t nmemb, char * userp) {
+
+    char * string = userp;
+    size_t length = size * nmemb;
+    strncat(string, buffer, length);
+    return length;
 }
 
 // vim: set ts=4 sw=4 et:
