@@ -11,62 +11,42 @@
 #include <curl/curl.h>
 #include <getopt.h>
 
-// Variables //
+// Forward Declarations //
 #define BUFFER_SIZE 120
+static char url [BUFFER_SIZE] = {'\0'};
 
-char url [BUFFER_SIZE] = {'\0'};
+static void
+_usage (int status) __attribute__((noreturn));
+
+static size_t
+write_function (const char * buffer, size_t size, size_t nmemb, char * userp);
 
 // Usage //
-void _usage (void) {
-    fputs("Usage: qurl [-h] [-q] [-v] [-u URL]\n\n"
-          "Options:\n"
-          "  -h, --help\tprint this help and exit\n"
-          "  -q, --quiet\tprint less\n"
-          "  -u, --url\tcheck status of URL\n"
-          "  -v, --verbose\tprint very verbosely\n\n"
-          "URL must include the protocol (e.g., http://)\n", stderr);
-    exit(0);
-}
-
-size_t write_function (const char * buffer, size_t size, size_t nmemb, char * userp) {
-    char * string = userp;
-    size_t length = size * nmemb;
-    strncat(string, buffer, length);
-    return length;
-}
-
 // Main Function //
-int main (int argc, char ** argv) {
-    static int flag_help;
+int 
+main (int argc, char * argv []) {
+
     static int flag_verbose;
     static int flag_quiet;
 
     if ( argc <= 1 ) {
-		flag_help = 1;
-	} else {   
-		int c = 0;
-        
-        while ( c != -1 ) {
-            static struct option options [] = {
-                /* Flags */
-                { "help",     no_argument,         0, 'h' },
-                { "quiet",    no_argument,         0, 'q' },
-                { "verbose",  no_argument,         0, 'v' },
-                /* Switches */
-                { "url",      required_argument,   0, 'u' },
-                { 0,          0,                   0, 0   },
-            };
+        _usage(1);
+    } else {   
+        static struct option os [] = {
+            /* Flags */
+            { "help",     no_argument,         0, 'h' },
+            { "quiet",    no_argument,         0, 'q' },
+            { "verbose",  no_argument,         0, 'v' },
+            /* Switches */
+            { "url",      required_argument,   0, 'u' },
+            { 0,          0,                   0, 0   },
+        };
 
-            int opt_index = 0;
-
-            c = getopt_long(argc, argv, "hqvu:", options, &opt_index);
-
-            if ( c == -1 ) break;
-
+        for ( int c = 0, i = 0; c != -1; 
+              c = getopt_long(argc, argv, "hqvu:", os, &i) ) {
             switch ( c ) {
                 case 'h':
-                    flag_help = 1;
-                    break;
+                    _usage(0);
 
                 case 'q':
                     flag_verbose = 0;
@@ -74,20 +54,20 @@ int main (int argc, char ** argv) {
                     break;
                 
                 case 'u':
-                    snprintf(url, sizeof(url), "http://qurl.org/api/url?url=%s", optarg);
+                    snprintf(url, sizeof(url), 
+                             "http://qurl.org/api/url?url=%s", optarg);
                     break;
 
                 case 'v':
                     flag_quiet = 0;
                     flag_verbose = 1;
-                    break;;
+                    break;
             }
         }
     }
 
-    if ( flag_help || !*url ) { _usage(); };
+    if ( !*url ) { _usage(1); };
 
-    curl_global_init(CURL_GLOBAL_ALL);
     CURL * handle = curl_easy_init();
     int status = 0;
 
@@ -103,7 +83,6 @@ int main (int argc, char ** argv) {
 
         if ( curl_easy_perform(handle) != CURLE_OK ) {
             curl_easy_cleanup(handle);
-            curl_global_cleanup();
             fputs("Could not reach qurl.org\n", stderr);
             exit(1);
         } else {
@@ -123,14 +102,14 @@ int main (int argc, char ** argv) {
                         strpd_ptr ++;
                     } 
 
-					lnk_ptr ++;
+                    lnk_ptr ++;
                 }
 
                 *strpd_ptr = '\0';
 
                 if ( !flag_quiet ) {
-					printf("Link %s: ", ( lnk_existed[0] == 't' ? "existed" : "did not exist" ));
-				} printf("%s\n", strpd_url);
+                    printf("Link %s: ", (lnk_existed[0] == 't' ? "existed" : "did not exist"));
+                } printf("%s\n", strpd_url);
             }
             else {
                 fprintf(stderr,"Not a valid URL\n");
@@ -140,8 +119,32 @@ int main (int argc, char ** argv) {
     }
     
     curl_easy_cleanup(handle);
-    curl_global_cleanup();
 
     return status;
 }
-// vim: set tabstop=4 shiftwidth=4 expandtab:
+
+// Function Definitions //
+static void 
+_usage (int status) {
+
+    fputs("Usage: qurl [-h] [-q] [-v] [-u URL]\n\n"
+          "Options:\n"
+          "  -h, --help\tprint this help and exit\n"
+          "  -q, --quiet\tprint less\n"
+          "  -u, --url\tcheck status of URL\n"
+          "  -v, --verbose\tprint very verbosely\n\n"
+          "URL must include the protocol (e.g., http://)\n"
+          ,(status ? stderr : stdout));
+    exit(status);
+}
+
+static size_t 
+write_function (const char * buffer, size_t size, size_t nmemb, char * userp) {
+
+    char * string = userp;
+    size_t length = size * nmemb;
+    strncat(string, buffer, length);
+    return length;
+}
+
+// vim: set ts=4 sw=4 et:
