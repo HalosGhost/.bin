@@ -1,5 +1,5 @@
 CC = clang
-CFLAGS += -O2 -Weverything -std=c11
+CFLAGS += -O2 -Weverything -Wno-disabled-macro-expansion -std=c11
 LIBS += `pkg-config --libs-only-l libcurl`
 SRC = hr.c isitup.c lsip.c pomf.c qurl.c sicolor.c
 #SRC = hr.c isitup.c lsip.c pomf.c qurl.c sicolor.c pipes.c
