@@ -23,7 +23,9 @@ static size_t
 write_function (const char * buffer, size_t size, size_t nmemb, char * userp);
 
 // Main Function //
-int main (int argc, char ** argv) {
+int 
+main (int argc, char * argv []) {
+
     int flag_quiet = 0;
     int flag_verbose = 0;
 
@@ -109,7 +111,9 @@ int main (int argc, char ** argv) {
 }
 
 // Function Definitions //
-void _usage (int status) {
+static void 
+_usage (int status) {
+
     fputs("Usage: isitup [-h] [-q] [-v] [-u URI]\n\n"
           "Options:\n"
           "  -h, --help\tprint this help and exit\n"
@@ -122,7 +126,9 @@ void _usage (int status) {
     exit(status);
 }
 
-size_t write_function (const char * buffer, size_t size, size_t nmemb, char * userp) {
+static size_t 
+write_function (const char * buffer, size_t size, size_t nmemb, char * userp) {
+
     char * string = userp;
     size_t length = size * nmemb;
     strncat(string, buffer, length);

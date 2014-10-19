@@ -94,8 +94,7 @@ usage (int status) {
     exit(status);
 }
 
-static
-size_t
+static size_t
 write_function (char * buffer, size_t size, size_t nmemb, char * userp) {
 
     char * string = userp;

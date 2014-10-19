@@ -18,7 +18,9 @@ static void
 get_ip (long mode);
 
 // Main Function //
-int main (int argc, char * argv []) {
+int 
+main (int argc, char * argv []) {
+
     char ip_mode = 0;
 
     static struct option os [] = {
@@ -75,7 +77,9 @@ int main (int argc, char * argv []) {
 }
 
 // Function Definitions //
-static void usage (int status) {
+static void 
+usage (int status) {
+
     fputs("Usage: lsip [options]\n\n"
           "Options:\n"
           "  -a, --all\tcheck and print all addresses\n"
@@ -86,7 +90,9 @@ static void usage (int status) {
     exit(status);
 }
 
-static void get_ip (long mode) {
+static void 
+get_ip (long mode) {
+
     CURL * handle = curl_easy_init();
     CURLcode res;
 
