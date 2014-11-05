@@ -7,96 +7,47 @@
 // Includes //
 #include <stdio.h>
 #include <stdlib.h>
-#include <getopt.h>
+#include <argp.h>
 #include <curl/curl.h>
 
 // Forward Definitions //
-static void
-usage (int status) __attribute__((noreturn));
+const char * argp_program_version = "lsip 2.0.0";
+const char * argp_program_bug_address = "<halosghost@archlinux.info>";
+static char doc [] = "lsip -- a simple tool to check external IP addresses";
 
-static void
+static int
 get_ip (long mode);
+
+static error_t
+parse_opt (int key, char * arg, struct argp_state * state);
 
 // Main Function //
 int 
 main (int argc, char * argv []) {
 
-    char ip_mode = 0;
-
-    static struct option os [] = {
-        /* Flags */
-        { "all",  no_argument,   0, 'a' },
-        { "help", no_argument,   0, 'h' },
-        { "ipv4", no_argument,   0, '4' },
-        { "ipv6", no_argument,   0, '6' },
-		{ 0,	  0,			 0,	0   },
+    struct argp_option os [] = {
+        { "all",  'a', 0, 0, "equivalent to -46", 0 },
+        { "ipv4", '4', 0, 0, "check ipv4",        0 },
+        { "ipv6", '6', 0, 0, "check ipv6",        0 },
+        { 0,      0,   0, 0, 0,                   0 }
     };
 
-    for ( int c = 0, i = 0; c != -1; 
-		  c = getopt_long(argc, argv, "ah46", os, &i) ) {
-        switch ( c ) {
-            case 'h':
-                usage(0);
+    struct argp argp = { os, parse_opt, "", doc, 0, 0, 0 };
 
-            case 'a':
-                ip_mode = 1;
-                break;
-
-            case '4':
-                ip_mode = 4;
-                break;
-
-            case '6':
-                ip_mode = 6;
-                break;
-        }
-    }
-
-    curl_global_init(CURL_GLOBAL_ALL);
-    switch ( ip_mode ) {
-        case 0:
-            get_ip(0);
-            break;
-
-        case 1:
-            get_ip(CURL_IPRESOLVE_V4);
-            get_ip(CURL_IPRESOLVE_V6);
-            break;
-
-        case 4:
-            get_ip(CURL_IPRESOLVE_V4);
-            break;
-
-        case 6:
-            get_ip(CURL_IPRESOLVE_V6);
-            break;
-    }
-
-    curl_global_cleanup();
-    return 0;
+    return (argc == 1 ? get_ip(0) : argp_parse(&argp, argc, argv, 0, 0, 0));
 }
 
 // Function Definitions //
-static void 
-usage (int status) {
-
-    fputs("Usage: lsip [options]\n\n"
-          "Options:\n"
-          "  -a, --all\tcheck and print all addresses\n"
-          "  -h, --help\tprint this message and exit\n"
-          "  -4, --ipv4\tcheck only external ipv4 address\n"
-          "  -6, --ipv6\tcheck only external ipv6 address\n"
-          ,(status == 0 ? stdout : stderr));
-    exit(status);
-}
-
-static void 
+static int
 get_ip (long mode) {
 
     CURL * handle = curl_easy_init();
     CURLcode res;
 
-    if ( !handle ) { fputs("Failed to get CURL handle", stderr); };
+    if ( !handle ) { 
+        fputs("Failed to get CURL handle", stderr); 
+        return 1;
+    }
 
     curl_easy_setopt(handle, CURLOPT_URL, "https://icanhazip.com");
     curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION, 1);
@@ -107,9 +58,33 @@ get_ip (long mode) {
     if ( res != CURLE_OK ) {
         fprintf(stderr, "Failed to fetch address: %s\n", 
                 curl_easy_strerror(res));
+        return 2;
     }
 
     curl_easy_cleanup(handle);
+    return 0;
+}
+
+static error_t
+parse_opt (int key, char * arg, struct argp_state * state) {
+
+    switch ( key ) {
+        case '4':
+            get_ip(CURL_IPRESOLVE_V4);
+            break;
+
+        case '6':
+            get_ip(CURL_IPRESOLVE_V6);
+            break;
+
+        case 'a':
+            get_ip(CURL_IPRESOLVE_V4);
+            get_ip(CURL_IPRESOLVE_V6);
+            break;
+
+        default:
+            return ARGP_ERR_UNKNOWN;
+    } return 0;
 }
 
 // vim: set tabstop=4 shiftwidth=4 expandtab:
