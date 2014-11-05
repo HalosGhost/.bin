@@ -13,7 +13,7 @@
 // Forward Definitions //
 const char * argp_program_version = "lsip 2.0.0";
 const char * argp_program_bug_address = "<halosghost@archlinux.info>";
-static char doc [] = "lsip -- a simple tool to check external IP addresses";
+static char * doc = "lsip -- a simple tool to check external IP addresses";
 
 static int
 get_ip (long mode);
@@ -27,9 +27,9 @@ main (int argc, char * argv []) {
 
     struct argp_option os [] = {
         { 0,      0,   0, 0, "Options:",          -1 },
-        { "all",  'a', 0, 0, "equivalent to -46",  0 },
         { "ipv4", '4', 0, 0, "check ipv4",         0 },
         { "ipv6", '6', 0, 0, "check ipv6",         0 },
+        { "all",  'a', 0, 0, "equivalent to -46",  0 },
         { 0,      0,   0, 0, 0,                    0 }
     };
 
