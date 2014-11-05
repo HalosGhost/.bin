@@ -26,10 +26,11 @@ int
 main (int argc, char * argv []) {
 
     struct argp_option os [] = {
-        { "all",  'a', 0, 0, "equivalent to -46", 0 },
-        { "ipv4", '4', 0, 0, "check ipv4",        0 },
-        { "ipv6", '6', 0, 0, "check ipv6",        0 },
-        { 0,      0,   0, 0, 0,                   0 }
+        { 0,      0,   0, 0, "Options:",          -1 },
+        { "all",  'a', 0, 0, "equivalent to -46",  0 },
+        { "ipv4", '4', 0, 0, "check ipv4",         0 },
+        { "ipv6", '6', 0, 0, "check ipv6",         0 },
+        { 0,      0,   0, 0, 0,                    0 }
     };
 
     struct argp argp = { os, parse_opt, "", doc, 0, 0, 0 };
