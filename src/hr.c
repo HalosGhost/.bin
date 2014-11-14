@@ -7,25 +7,25 @@
 // Libraries //
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 #include <sys/ioctl.h>
 
 // Main Function //
-int 
-main (int argc, char * argv []) {
+int32_t
+main (int32_t argc, char * argv []) {
 
     struct winsize w;
     ioctl(0, TIOCGWINSZ, &w);
-    unsigned long COLS = (w.ws_col <= 0 ? 80 : w.ws_col);
+    uint16_t COLS = (w.ws_col <= 0 ? 80 : w.ws_col);
 
     if ( argc <= 1 ) {
-        for ( unsigned long i = 0; i < COLS; i ++ ) {
-            printf("#");
-        } printf("\n");
+        for ( uint16_t i = 0; i < COLS; i ++ ) { printf("#"); } puts("");
     } else {
-        for ( int i = 1; i < argc; i ++ ) {
-            for ( unsigned int j = 0; j < (COLS/strlen(argv[i])); j ++ ) {
-                printf("%s", argv[i]);
-            } printf("\n");
+        for ( int32_t i = 1; i < argc; i ++ ) {
+			uint64_t len = strlen(argv[i]);
+            for ( uint16_t j = 0; j < COLS; j ++ ) {
+                printf("%c", argv[i][j%len]);
+            } puts("");
         }
     } return 0;
 }
