@@ -68,7 +68,6 @@ main (int argc, char * argv []) {
 
     if ( !*uri ) _usage(1);
 
-    curl_global_init(CURL_GLOBAL_ALL);
     CURL * handle = curl_easy_init();
     int status = 0;
 
@@ -105,7 +104,6 @@ main (int argc, char * argv []) {
     }
     
     curl_easy_cleanup(handle);
-    curl_global_cleanup();
 
     return (status-1);
 }
