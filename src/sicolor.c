@@ -7,10 +7,12 @@
 
 // Includes //
 #include <stdio.h>
+#include <stdint.h>
 #include "ansicolor.h"
 
 // Main Function //
-int main (void) {
+int32_t
+main (void) {
 
     /* Top Row Invaders */
     printf(ANSI_FG_BLACK   "  ▀▄   ▄▀   " 
@@ -19,75 +21,74 @@ int main (void) {
            ANSI_FG_YELLOW  "   ▀▄   ▄▀   " 
            ANSI_FG_BLUE	   "  ▄▄▄████▄▄▄  " 
            ANSI_FG_MAGENTA "   ▄██▄   " 
-           ANSI_FG_CYAN	   "   ▀▄   ▄▀   \n");
+           ANSI_FG_CYAN	   "   ▀▄   ▄▀   \n"
 
-    printf(ANSI_FG_BLACK   " ▄█▀███▀█▄  " 
+           ANSI_FG_BLACK   " ▄█▀███▀█▄  " 
            ANSI_FG_RED	   " ███▀▀██▀▀███ " 
            ANSI_FG_GREEN   " ▄█▀██▀█▄ " 
            ANSI_FG_YELLOW  "  ▄█▀███▀█▄  " 
            ANSI_FG_BLUE	   " ███▀▀██▀▀███ " 
            ANSI_FG_MAGENTA " ▄█▀██▀█▄ " 
-           ANSI_FG_CYAN	   "  ▄█▀███▀█▄  \n");
+           ANSI_FG_CYAN	   "  ▄█▀███▀█▄  \n"
 
-    printf(ANSI_FG_BLACK   "█▀███████▀█ " 
+           ANSI_FG_BLACK   "█▀███████▀█ " 
            ANSI_FG_RED	   " ▀▀███▀▀███▀▀ " 
            ANSI_FG_GREEN   " ▀█▀██▀█▀ " 
            ANSI_FG_YELLOW  " █▀███████▀█ " 
            ANSI_FG_BLUE	   " ▀▀███▀▀███▀▀ " 
            ANSI_FG_MAGENTA " ▀█▀██▀█▀ " 
-           ANSI_FG_CYAN	   " █▀███████▀█ \n");
+           ANSI_FG_CYAN	   " █▀███████▀█ \n"
 
-    printf(ANSI_FG_BLACK   "▀ ▀▄▄ ▄▄▀ ▀ "
+           ANSI_FG_BLACK   "▀ ▀▄▄ ▄▄▀ ▀ "
            ANSI_FG_RED	   "  ▀█▄ ▀▀ ▄█▀  "
            ANSI_FG_GREEN   " ▀▄    ▄▀ " 
            ANSI_FG_YELLOW  " ▀ ▀▄▄ ▄▄▀ ▀ " 
            ANSI_FG_BLUE	   "  ▀█▄ ▀▀ ▄█▀  " 
            ANSI_FG_MAGENTA " ▀▄    ▄▀ " 
-           ANSI_FG_CYAN	   " ▀ ▀▄▄ ▄▄▀ ▀ \n");
-
-    printf("\n" ANSI_BOLD_ON);
+           ANSI_FG_CYAN	   " ▀ ▀▄▄ ▄▄▀ ▀ \n"
+		   ANSI_BOLD_ON    "\n"
 
     /* Bottom Row Invaders */
-    printf(ANSI_FG_BLACK   "▄ ▀▄   ▄▀ ▄ " 
+           ANSI_FG_BLACK   "▄ ▀▄   ▄▀ ▄ " 
            ANSI_FG_RED	   "  ▄▄▄████▄▄▄  " 
            ANSI_FG_GREEN   "   ▄██▄   " 
            ANSI_FG_YELLOW  " ▄ ▀▄   ▄▀ ▄ " 
            ANSI_FG_BLUE	   "  ▄▄▄████▄▄▄  " 
            ANSI_FG_MAGENTA "   ▄██▄   " 
-           ANSI_FG_CYAN	   " ▄ ▀▄   ▄▀ ▄ \n" );
-
-    printf(ANSI_FG_BLACK   "█▄█▀███▀█▄█ " 
+           ANSI_FG_CYAN	   " ▄ ▀▄   ▄▀ ▄ \n" 
+           
+           ANSI_FG_BLACK   "█▄█▀███▀█▄█ " 
            ANSI_FG_RED	   " ███▀▀██▀▀███ " 
            ANSI_FG_GREEN   " ▄█▀██▀█▄ " 
            ANSI_FG_YELLOW  " █▄█▀███▀█▄█ " 
            ANSI_FG_BLUE	   " ███▀▀██▀▀███ " 
            ANSI_FG_MAGENTA " ▄█▀██▀█▄ " 
-           ANSI_FG_CYAN	   " █▄█▀███▀█▄█ \n" );
-
-    printf(ANSI_FG_BLACK   "▀█████████▀ " 
+           ANSI_FG_CYAN	   " █▄█▀███▀█▄█ \n" 
+           
+           ANSI_FG_BLACK   "▀█████████▀ " 
            ANSI_FG_RED	   " ▀▀▀██▀▀██▀▀▀ " 
            ANSI_FG_GREEN   " ▀▀█▀▀█▀▀ " 
            ANSI_FG_YELLOW  " ▀█████████▀ " 
            ANSI_FG_BLUE	   " ▀▀▀██▀▀██▀▀▀ " 
            ANSI_FG_MAGENTA " ▀▀█▀▀█▀▀ " 
-           ANSI_FG_CYAN	   " ▀█████████▀ \n" );
-
-    printf(ANSI_FG_BLACK   " ▄▀     ▀▄  "
+           ANSI_FG_CYAN	   " ▀█████████▀ \n" 
+           
+           ANSI_FG_BLACK   " ▄▀     ▀▄  "
            ANSI_FG_RED	   " ▄▄▀▀ ▀▀ ▀▀▄▄ "
            ANSI_FG_GREEN   " ▄▀▄▀▀▄▀▄ " 
            ANSI_FG_YELLOW  "  ▄▀     ▀▄  " 
            ANSI_FG_BLUE	   " ▄▄▀▀ ▀▀ ▀▀▄▄ " 
            ANSI_FG_MAGENTA " ▄▀▄▀▀▄▀▄ " 
-           ANSI_FG_CYAN	   "  ▄▀     ▀▄  \n" );
-
-    printf(ANSI_RESET "\n");
+           ANSI_FG_CYAN	   "  ▄▀     ▀▄  \n" 
+           
+           ANSI_RESET      "\n"
 
     /* Defender's Tank */
-    printf("\t\t\t\t\t  ▌\n\n");
-    printf("\t\t\t\t\t▌\n\n");
-    printf("\t\t\t\t      ▄█▄\n");
-    printf("\t\t\t\t  ▄█████████▄\n");
-    printf("\t\t\t\t  ▀▀▀▀▀▀▀▀▀▀▀\n");
+           "\t\t\t\t\t  ▌\n\n"
+           "\t\t\t\t\t▌\n\n"
+           "\t\t\t\t      ▄█▄\n"
+           "\t\t\t\t  ▄█████████▄\n"
+           "\t\t\t\t  ▀▀▀▀▀▀▀▀▀▀▀\n");
 
     return 0;
 }
