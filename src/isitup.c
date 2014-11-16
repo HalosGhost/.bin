@@ -18,7 +18,7 @@
 
 struct args {
     char uri [BUFFER_SIZE], response [BUFFER_SIZE];
-    bool quiet, verbose;
+    bool quiet: 4, verbose: 4;
 };
 
 const char * argp_program_version = "isitup 1.1.0";
