@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <curl/curl.h>
 #include <getopt.h>
 
@@ -17,17 +19,17 @@
 static char uri [BUFFER_SIZE] = {'\0'};
 
 static void
-_usage (int status) __attribute__((noreturn));
+_usage (uint8_t status) __attribute__((noreturn));
 
 static size_t
 write_function (const char * buffer, size_t size, size_t nmemb, char * userp);
 
 // Main Function //
-int 
-main (int argc, char * argv []) {
+int32_t
+main (int32_t argc, char * argv []) {
 
-    int flag_quiet = 0;
-    int flag_verbose = 0;
+    bool flag_quiet   = false;
+    bool flag_verbose = false;
 
     if ( argc <= 1 ) { 
         _usage(1);
@@ -50,8 +52,8 @@ main (int argc, char * argv []) {
                     _usage(0);
 
                 case 'q':
-                    flag_quiet = 1;
-                    flag_verbose = 0;
+                    flag_quiet   = true;
+                    flag_verbose = false;
                     break;
                 
                 case 'u':
@@ -59,8 +61,8 @@ main (int argc, char * argv []) {
                     break;
 
                 case 'v':
-                    flag_verbose = 1;
-                    flag_quiet = 0;
+                    flag_verbose = true;
+                    flag_quiet   = false;
                     break;
             }
         }
@@ -69,7 +71,7 @@ main (int argc, char * argv []) {
     if ( !*uri ) _usage(1);
 
     CURL * handle = curl_easy_init();
-    int status = 0;
+    uint8_t status = 0;
 
     if ( handle ) {
         char response [BUFFER_SIZE] = {'\0'};
@@ -87,10 +89,11 @@ main (int argc, char * argv []) {
             fputs("Could not reach isitup.org\n", stderr);
             exit(1);
         } else {
-            int port, http_response;
+            int32_t port, http_response;
             double response_time;
             char ip_addr [43];
-            sscanf(response, "%*[^,], %d, %d, %[^,], %d, %lg", &port, &status, ip_addr, &http_response, &response_time);
+            sscanf(response, "%*[^,], %d, %d, %[^,], %d, %lg", 
+                   &port, &status, ip_addr, &http_response, &response_time);
 
             if ( !flag_quiet ) {
                 printf("%s:%d ", ip_addr, port);
@@ -110,7 +113,7 @@ main (int argc, char * argv []) {
 
 // Function Definitions //
 static void 
-_usage (int status) {
+_usage (uint8_t status) {
 
     fputs("Usage: isitup [-h] [-q] [-v] [-u URI]\n\n"
           "Options:\n"
