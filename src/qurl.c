@@ -8,89 +8,74 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <curl/curl.h>
-#include <getopt.h>
+#include <argp.h>
 
 // Forward Declarations //
 #define BUFFER_SIZE 120
-static char url [BUFFER_SIZE] = {'\0'};
 
-static void
-_usage (int status) __attribute__((noreturn));
+struct args {
+    char url [BUFFER_SIZE], response [BUFFER_SIZE];
+    bool quiet: 4, verbose: 4;
+};
+
+const char * argp_program_version = "qurl 1.1.0";
+const char * argp_program_bug_address = "<halosghost@archlinux.info>";
+static char * doc = "qurl -- a simple program to shorten URLs using qurl.org\v"
+                    "URL should include the protocol";
+
+static error_t
+parse_opt (int key, char * arg, struct argp_state * state);
 
 static size_t
 write_function (const char * buffer, size_t size, size_t nmemb, char * userp);
 
 // Usage //
 // Main Function //
-int 
-main (int argc, char * argv []) {
+int32_t
+main (int32_t argc, char * argv []) {
 
-    static int flag_verbose;
-    static int flag_quiet;
+    struct argp_option os [] = {
+        { 0,         0,   0,     0, "Options:",        -1 },
+        { "verbose", 'v', 0,     0, "Print verbosely", 0  },
+        { "quiet",   'q', 0,     0, "Print less",      0  },
+        { "url",     'u', "URL", 0, "Shorten URL",     0  },
+        { 0,         0,   0,     0, 0,                 0  }
+    };
 
-    if ( argc <= 1 ) {
-        _usage(1);
-    } else {   
-        static struct option os [] = {
-            /* Flags */
-            { "help",     no_argument,         0, 'h' },
-            { "quiet",    no_argument,         0, 'q' },
-            { "verbose",  no_argument,         0, 'v' },
-            /* Switches */
-            { "url",      required_argument,   0, 'u' },
-            { 0,          0,                   0, 0   },
-        };
+    struct argp argp = { os, parse_opt, "", doc, NULL, NULL, 0 };
+    struct args args = { {0}, {0}, false, false };
 
-        for ( int c = 0, i = 0; c != -1; 
-              c = getopt_long(argc, argv, "hqvu:", os, &i) ) {
-            switch ( c ) {
-                case 'h':
-                    _usage(0);
+    argp_parse(&argp, argc, argv, 0, 0, &args);
 
-                case 'q':
-                    flag_verbose = 0;
-                    flag_quiet = 1;
-                    break;
-                
-                case 'u':
-                    snprintf(url, sizeof(url), 
-                             "http://qurl.org/api/url?url=%s", optarg);
-                    break;
-
-                case 'v':
-                    flag_quiet = 0;
-                    flag_verbose = 1;
-                    break;
-            }
-        }
+    if ( !*args.url ) {
+        fputs("No URI given\n", stderr);
+        exit(2);
     }
 
-    if ( !*url ) { _usage(1); };
-
     CURL * handle = curl_easy_init();
-    int status = 0;
+    int32_t status = 0;
 
     if ( handle ) {
-        char response [BUFFER_SIZE] = {'\0'};
-
-        curl_easy_setopt(handle, CURLOPT_URL, url);
+        curl_easy_setopt(handle, CURLOPT_URL, args.url);
         curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION, 1);
         curl_easy_setopt(handle, CURLOPT_USERAGENT, "curl/7.35.0");
         curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_function);
-        curl_easy_setopt(handle, CURLOPT_WRITEDATA, response);
-        curl_easy_setopt(handle, CURLOPT_VERBOSE, flag_verbose);
+        curl_easy_setopt(handle, CURLOPT_WRITEDATA, args.response);
+        curl_easy_setopt(handle, CURLOPT_VERBOSE, args.verbose);
 
         if ( curl_easy_perform(handle) != CURLE_OK ) {
             curl_easy_cleanup(handle);
             fputs("Could not reach qurl.org\n", stderr);
             exit(1);
         } else {
-            if ( response[3] == 'x' ) { // {"exists" ...
+            if ( args.response[3] == 'x' ) { // {"exists" ...
                 char lnk_url [26] = {'\0'}; // largest possible is 23 at the moment
                 char lnk_existed [6] = {'\0'};
 
-                sscanf(response, "%*[^:]:%[^,],%*[^:]:\"%[^\"]", lnk_existed, lnk_url);
+                sscanf(args.response, "%*[^:]:%[^,],%*[^:]:\"%[^\"]", lnk_existed, lnk_url);
 
                 char * lnk_ptr = lnk_url;
                 char strpd_url [26];
@@ -100,42 +85,47 @@ main (int argc, char * argv []) {
                     if ( *lnk_ptr != '\\' ) {
                         *strpd_ptr = *lnk_ptr;
                         strpd_ptr ++;
-                    } 
-
-                    lnk_ptr ++;
+                    } lnk_ptr ++;
                 }
 
                 *strpd_ptr = '\0';
 
-                if ( !flag_quiet ) {
+                if ( !args.quiet ) {
                     printf("Link %s: ", (lnk_existed[0] == 't' ? "existed" : "did not exist"));
                 } printf("%s\n", strpd_url);
-            }
-            else {
+            } else {
                 fprintf(stderr,"Not a valid URL\n");
                 status = 1;
             }
         }
-    }
-    
-    curl_easy_cleanup(handle);
-
+    } curl_easy_cleanup(handle);
     return status;
 }
 
 // Function Definitions //
-static void 
-_usage (int status) {
+static error_t
+parse_opt (int32_t key, char * arg, struct argp_state * state) {
 
-    fputs("Usage: qurl [-h] [-q] [-v] [-u URL]\n\n"
-          "Options:\n"
-          "  -h, --help\tprint this help and exit\n"
-          "  -q, --quiet\tprint less\n"
-          "  -u, --url\tcheck status of URL\n"
-          "  -v, --verbose\tprint very verbosely\n\n"
-          "URL must include the protocol (e.g., http://)\n"
-          ,(status ? stderr : stdout));
-    exit(status);
+    struct args * args = state->input;
+    switch ( key ) {
+        case 'q':
+            args->quiet   = true;
+            args->verbose = false;
+            break;
+
+        case 'v':
+            args->quiet   = false;
+            args->verbose = true;
+            break;
+
+        case 'u':
+            snprintf(args->url, sizeof(args->url), 
+                     "http://qurl.org/api/url?url=%s", arg);
+            break;
+
+        default:
+            return ARGP_ERR_UNKNOWN;
+    } return 0;
 }
 
 static size_t 
