@@ -80,14 +80,14 @@ main (int32_t argc, char * argv []) {
             sscanf(args.response, "%*[^,], %d, %hhu, %[^,], %d, %lg", 
                    &port, &status, ip_addr, &http_response, &response_time);
 
-            //if ( !args.quiet ) {
+            if ( !args.quiet ) {
                 printf("%s:%d ", ip_addr, port);
                 if ( status > 1 ) { 
                     printf("appears down\n"); 
                 } else { 
                     printf("(%d after %lgs)\n", http_response, response_time); 
                 }
-            //}
+            }
         }
     }
     
