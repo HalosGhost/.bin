@@ -19,12 +19,12 @@ main (int32_t argc, char * argv []) {
     uint16_t COLS = (w.ws_col <= 0 ? 80 : w.ws_col);
 
     if ( argc <= 1 ) {
-        for ( uint16_t i = 0; i < COLS; i ++ ) { printf("#"); } puts("");
+        for ( uint16_t i = 0; i < COLS; i ++ ) { putchar('#'); } puts("");
     } else {
         for ( int32_t i = 1; i < argc; i ++ ) {
             uint64_t len = strlen(argv[i]);
             for ( uint16_t j = 0; j < COLS; j ++ ) {
-                printf("%c", argv[i][j%len]);
+                putchar(argv[i][j%len]);
             } puts("");
         }
     } return 0;
