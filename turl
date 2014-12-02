@@ -6,7 +6,7 @@ get_urls () {
 }
 
 follow () {
-    get_urls | xargs -r "${BROWSER}" # 9 plumb
+    get_urls | xargs -r "${BROWSER}" > /dev/null # 9 plumb
 }
 
 grab () {
