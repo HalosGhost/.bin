@@ -24,6 +24,11 @@ const char * argp_program_version = "pomf 1.1.0";
 const char * argp_program_bug_address = "<halosghost@archlinux.info>";
 static char * doc = "pomf -- a simple tool to upload files to pomf.se";
 
+/**
+ * TODO list:
+ * - stdin support
+ */
+
 struct args {
     char src [4097];
     bool verbosity;
@@ -73,7 +78,6 @@ main (signed argc, char * argv []) {
     struct curl_httppost * post = NULL;
     struct curl_httppost * postend = NULL;
 
-    // FIX DIS
     curl_formadd(&post, &postend,
                  CURLFORM_COPYNAME, "files[]",
                  CURLFORM_FILE, as.src,
