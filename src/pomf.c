@@ -86,7 +86,7 @@ main (signed argc, char * argv []) {
     char written_result [BUFFER_SIZE] = { '\0' };
 
     curl_easy_setopt(handle, CURLOPT_VERBOSE, as.verbosity);
-    curl_easy_setopt(handle, CURLOPT_URL, "http://pomf.se/upload.php");
+    curl_easy_setopt(handle, CURLOPT_URL, "https://pomf.se/upload.php");
     curl_easy_setopt(handle, CURLOPT_NOPROGRESS, 1L);
     curl_easy_setopt(handle, CURLOPT_FAILONERROR, 1L);
     curl_easy_setopt(handle, CURLOPT_HTTPPOST, post);
@@ -103,7 +103,7 @@ main (signed argc, char * argv []) {
 
     char url [BUFFER_SIZE];
     sscanf(written_result, "%*[^[][%*[^,],%*[^,],%*[^:]:\"%[^\"]", url);
-    printf("http://a.pomf.se/%s\n", url);
+    printf("https://a.pomf.se/%s\n", url);
 
     return (signed )res;
 }
