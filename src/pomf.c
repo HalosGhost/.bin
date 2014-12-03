@@ -20,7 +20,7 @@
 #define BUFFER_SIZE 256
 #define FILE_MAX 52428800
 
-const char * argp_program_version = "pomf 1.2.0";
+const char * argp_program_version = "pomf 1.2.1";
 const char * argp_program_bug_address = "<halosghost@archlinux.info>";
 static char * doc = "pomf -- a simple tool to upload files to pomf.se";
 
@@ -36,14 +36,14 @@ struct args {
 static size_t
 write_function (char *, size_t, size_t, char *);
 
-static error_t
-parse_opt (signed, char *, struct argp_state *);
-
 static unsigned char
 check_file_size (const char *);
 
 static CURLcode
 upload_file (const char *, bool);
+
+static error_t
+parse_opt (signed, char *, struct argp_state *);
 
 // Main Function //
 signed
