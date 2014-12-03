@@ -21,10 +21,10 @@ struct args {
     bool quiet: 4, verbose: 4;
 };
 
-const char * argp_program_version = "isitup 1.1.0";
+const char * argp_program_version = "isitup 1.1.1";
 const char * argp_program_bug_address = "<halosghost@archlinux.info>";
 static char * doc = "isitup -- a simple tool to check if a URI is up\v"
-                    "URI should be given as the domain name and TDL only\n"
+                    "URI should be given as the domain name and TLD only\n"
                     "exit codes: URI appears {0: up, 1: down, 2: invalid}";
 
 static error_t
