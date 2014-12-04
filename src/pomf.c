@@ -89,10 +89,10 @@ check_file_size (const char * path) {
 static CURLcode
 upload_file (const char * path, bool verbosity) {
 
-    CURL * handle = curl_easy_init();
+    CURL * h = curl_easy_init();
     CURLcode res;
 
-    if ( !handle ) {
+    if ( !h ) {
         fputs("Failed to get CURL handle", stderr);
         return CURLE_FAILED_INIT;
     }
@@ -107,19 +107,19 @@ upload_file (const char * path, bool verbosity) {
 
     char written_result [BUFFER_SIZE] = { '\0' };
 
-    curl_easy_setopt(handle, CURLOPT_VERBOSE, verbosity);
-    curl_easy_setopt(handle, CURLOPT_URL, "https://pomf.se/upload.php");
-    curl_easy_setopt(handle, CURLOPT_NOPROGRESS, 1L);
-    curl_easy_setopt(handle, CURLOPT_FAILONERROR, 1L);
-    curl_easy_setopt(handle, CURLOPT_HTTPPOST, post);
-    curl_easy_setopt(handle, CURLOPT_MAXREDIRS, 50L);
-    curl_easy_setopt(handle, CURLOPT_TCP_KEEPALIVE, 1L);
-    curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_function);
-    curl_easy_setopt(handle, CURLOPT_WRITEDATA, &written_result);
+    curl_easy_setopt(h, CURLOPT_VERBOSE, verbosity);
+    curl_easy_setopt(h, CURLOPT_URL, "https://pomf.se/upload.php");
+    curl_easy_setopt(h, CURLOPT_NOPROGRESS, 1L);
+    curl_easy_setopt(h, CURLOPT_FAILONERROR, 1L);
+    curl_easy_setopt(h, CURLOPT_HTTPPOST, post);
+    curl_easy_setopt(h, CURLOPT_MAXREDIRS, 50L);
+    curl_easy_setopt(h, CURLOPT_TCP_KEEPALIVE, 1L);
+    curl_easy_setopt(h, CURLOPT_WRITEFUNCTION, write_function);
+    curl_easy_setopt(h, CURLOPT_WRITEDATA, &written_result);
 
-    res = curl_easy_perform(handle);
-    curl_easy_cleanup(handle);
-    handle = NULL;
+    res = curl_easy_perform(h);
+    curl_easy_cleanup(h);
+    h = NULL;
     curl_formfree(post);
     post = NULL;
 
