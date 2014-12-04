@@ -30,6 +30,7 @@ static char * doc = "pomf -- a simple tool to upload files to pomf.se";
  */
 
 struct args {
+    unsigned char file_count;
     bool verbosity;
 };
 
@@ -57,10 +58,13 @@ main (signed argc, char * argv []) {
     };
 
     struct argp argp = { os, parse_opt, 0, doc, 0, 0, 0 };
-    struct args as = { false };
+    struct args as = { 0, false };
     argp_parse(&argp, argc, argv, 0, 0 , &as);
 
-    return 0;
+    if ( argc <= 1 || !as.file_count ) {
+        fputs("You must pass at least one file to upload\n", stderr);
+        return 1;
+    } return 0;
 }
 
 // Function Definitions //
@@ -141,6 +145,7 @@ parse_opt (signed key, char * arg, struct argp_state * state) {
             if ( check_file_size(arg) ) {
                 break;
             } else {
+                a->file_count ++;
                 upload_file(arg, a->verbosity);
             } break;
 
