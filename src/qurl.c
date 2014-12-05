@@ -26,10 +26,10 @@ static char * doc = "qurl -- a simple program to shorten URLs using qurl.org\v"
                     "URL should include the protocol";
 
 static error_t
-parse_opt (int key, char * arg, struct argp_state * state);
+parse_opt (int, char *, struct argp_state *);
 
 static size_t
-write_function (const char * buffer, size_t size, size_t nmemb, char * userp);
+write_function (const char *, size_t, size_t, char *);
 
 // Main Function //
 signed
