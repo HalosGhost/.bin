@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include <stdint.h>
 #include <curl/curl.h>
 #include <argp.h>
 
@@ -33,8 +32,8 @@ static size_t
 write_function (const char * buffer, size_t size, size_t nmemb, char * userp);
 
 // Main Function //
-int32_t
-main (int32_t argc, char * argv []) {
+signed
+main (signed argc, char * argv []) {
 
     struct argp_option os [] = {
         { 0,         0,   0,     0, "Options:",        -1 },
@@ -53,19 +52,19 @@ main (int32_t argc, char * argv []) {
         exit(2);
     }
 
-    CURL * handle = curl_easy_init();
-    int32_t status = 0;
+    CURL * h = curl_easy_init();
+    signed status = 0;
 
-    if ( handle ) {
-        curl_easy_setopt(handle, CURLOPT_URL, args.url);
-        curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION, 1);
-        curl_easy_setopt(handle, CURLOPT_USERAGENT, "curl/7.35.0");
-        curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_function);
-        curl_easy_setopt(handle, CURLOPT_WRITEDATA, args.response);
-        curl_easy_setopt(handle, CURLOPT_VERBOSE, args.verbose);
+    if ( h ) {
+        curl_easy_setopt(h, CURLOPT_URL, args.url);
+        curl_easy_setopt(h, CURLOPT_FOLLOWLOCATION, 1);
+        curl_easy_setopt(h, CURLOPT_USERAGENT, "curl/7.35.0");
+        curl_easy_setopt(h, CURLOPT_WRITEFUNCTION, write_function);
+        curl_easy_setopt(h, CURLOPT_WRITEDATA, args.response);
+        curl_easy_setopt(h, CURLOPT_VERBOSE, args.verbose);
 
-        if ( curl_easy_perform(handle) != CURLE_OK ) {
-            curl_easy_cleanup(handle);
+        if ( curl_easy_perform(h) != CURLE_OK ) {
+            curl_easy_cleanup(h);
             fputs("Could not reach qurl.org\n", stderr);
             exit(1);
         } else {
@@ -95,13 +94,13 @@ main (int32_t argc, char * argv []) {
                 status = 1;
             }
         }
-    } curl_easy_cleanup(handle);
+    } curl_easy_cleanup(h);
     return status;
 }
 
 // Function Definitions //
 static error_t
-parse_opt (int32_t key, char * arg, struct argp_state * state) {
+parse_opt (signed key, char * arg, struct argp_state * state) {
 
     struct args * args = state->input;
     switch ( key ) {
