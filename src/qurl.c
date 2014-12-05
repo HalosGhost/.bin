@@ -25,11 +25,11 @@ const char * argp_program_bug_address = "<halosghost@archlinux.info>";
 static char * doc = "qurl -- a simple program to shorten URLs using qurl.org\v"
                     "URL should include the protocol";
 
-static error_t
-parse_opt (int, char *, struct argp_state *);
-
 static size_t
 write_function (const char *, size_t, size_t, char *);
+
+static error_t
+parse_opt (int, char *, struct argp_state *);
 
 // Main Function //
 signed
@@ -99,6 +99,14 @@ main (signed argc, char * argv []) {
 }
 
 // Function Definitions //
+static size_t
+write_function (const char * buffer, size_t size, size_t nmemb, char * userp) {
+
+    size_t length = size * nmemb;
+    strncat(userp, buffer, length);
+    return length;
+}
+
 static error_t
 parse_opt (signed key, char * arg, struct argp_state * state) {
 
@@ -116,14 +124,6 @@ parse_opt (signed key, char * arg, struct argp_state * state) {
         default:
             return ARGP_ERR_UNKNOWN;
     } return 0;
-}
-
-static size_t
-write_function (const char * buffer, size_t size, size_t nmemb, char * userp) {
-
-    size_t length = size * nmemb;
-    strncat(userp, buffer, length);
-    return length;
 }
 
 // vim: set ts=4 sw=4 et:
