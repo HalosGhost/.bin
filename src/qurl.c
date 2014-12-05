@@ -18,10 +18,10 @@
 
 struct args {
     char url [BUFFER_SIZE], response [BUFFER_SIZE];
-    bool quiet: 4, verbose: 4;
+    bool verbose;
 };
 
-const char * argp_program_version = "qurl 1.1.0";
+const char * argp_program_version = "qurl 1.1.1";
 const char * argp_program_bug_address = "<halosghost@archlinux.info>";
 static char * doc = "qurl -- a simple program to shorten URLs using qurl.org\v"
                     "URL should include the protocol";
@@ -32,7 +32,6 @@ parse_opt (int key, char * arg, struct argp_state * state);
 static size_t
 write_function (const char * buffer, size_t size, size_t nmemb, char * userp);
 
-// Usage //
 // Main Function //
 int32_t
 main (int32_t argc, char * argv []) {
@@ -40,13 +39,12 @@ main (int32_t argc, char * argv []) {
     struct argp_option os [] = {
         { 0,         0,   0,     0, "Options:",        -1 },
         { "verbose", 'v', 0,     0, "Print verbosely", 0  },
-        { "quiet",   'q', 0,     0, "Print less",      0  },
         { "url",     'u', "URL", 0, "Shorten URL",     0  },
         { 0,         0,   0,     0, 0,                 0  }
     };
 
     struct argp argp = { os, parse_opt, "", doc, NULL, NULL, 0 };
-    struct args args = { {0}, {0}, false, false };
+    struct args args = { {0}, {0}, false };
 
     argp_parse(&argp, argc, argv, 0, 0, &args);
 
@@ -73,9 +71,9 @@ main (int32_t argc, char * argv []) {
         } else {
             if ( args.response[3] == 'x' ) { // {"exists" ...
                 char lnk_url [26] = {'\0'}; // largest possible is 23 at the moment
-                char lnk_existed [6] = {'\0'};
+                char existed [6] = {'\0'};
 
-                sscanf(args.response, "%*[^:]:%[^,],%*[^:]:\"%[^\"]", lnk_existed, lnk_url);
+                sscanf(args.response, "%*[^:]:%[^,],%*[^:]:\"%[^\"]", existed, lnk_url);
 
                 char * lnk_ptr = lnk_url;
                 char strpd_url [26];
@@ -90,9 +88,8 @@ main (int32_t argc, char * argv []) {
 
                 *strpd_ptr = '\0';
 
-                if ( !args.quiet ) {
-                    printf("Link %s: ", (lnk_existed[0] == 't' ? "existed" : "did not exist"));
-                } printf("%s\n", strpd_url);
+                printf("Link %s: %s\n", (existed[0] == 't' ? "existed" : "did not exist"),
+                       strpd_url);
             } else {
                 fprintf(stderr,"Not a valid URL\n");
                 status = 1;
@@ -108,18 +105,12 @@ parse_opt (int32_t key, char * arg, struct argp_state * state) {
 
     struct args * args = state->input;
     switch ( key ) {
-        case 'q':
-            args->quiet   = true;
-            args->verbose = false;
-            break;
-
         case 'v':
-            args->quiet   = false;
             args->verbose = true;
             break;
 
         case 'u':
-            snprintf(args->url, sizeof(args->url), 
+            snprintf(args->url, sizeof(args->url),
                      "http://qurl.org/api/url?url=%s", arg);
             break;
 
@@ -128,12 +119,11 @@ parse_opt (int32_t key, char * arg, struct argp_state * state) {
     } return 0;
 }
 
-static size_t 
+static size_t
 write_function (const char * buffer, size_t size, size_t nmemb, char * userp) {
 
-    char * string = userp;
     size_t length = size * nmemb;
-    strncat(string, buffer, length);
+    strncat(userp, buffer, length);
     return length;
 }
 
