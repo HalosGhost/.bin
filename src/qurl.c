@@ -16,11 +16,12 @@
 #define BUFFER_SIZE 120
 
 struct args {
-    char url [BUFFER_SIZE], response [BUFFER_SIZE];
-    bool verbose;
+    char response [BUFFER_SIZE];
+    unsigned char url_count;
+    bool verbosity;
 };
 
-const char * argp_program_version = "qurl 1.1.1";
+const char * argp_program_version = "qurl 1.2.0";
 const char * argp_program_bug_address = "<halosghost@archlinux.info>";
 static char * doc = "qurl -- a simple program to shorten URLs using qurl.org\v"
                     "URL should include the protocol";
@@ -28,8 +29,11 @@ static char * doc = "qurl -- a simple program to shorten URLs using qurl.org\v"
 static size_t
 write_function (const char *, size_t, size_t, char *);
 
+static CURLcode
+shorten_url (const char *, char *, bool);
+
 static error_t
-parse_opt (int, char *, struct argp_state *);
+parse_opt (signed, char *, struct argp_state *);
 
 // Main Function //
 signed
@@ -43,59 +47,14 @@ main (signed argc, char * argv []) {
     };
 
     struct argp argp = { os, parse_opt, "", doc, NULL, NULL, 0 };
-    struct args args = { {0}, {0}, false };
+    struct args args = { {0}, 0, false };
 
     argp_parse(&argp, argc, argv, 0, 0, &args);
 
-    if ( !*args.url ) {
-        fputs("No URI given\n", stderr);
-        exit(2);
-    }
-
-    CURL * h = curl_easy_init();
-    signed status = 0;
-
-    if ( h ) {
-        curl_easy_setopt(h, CURLOPT_URL, args.url);
-        curl_easy_setopt(h, CURLOPT_FOLLOWLOCATION, 1);
-        curl_easy_setopt(h, CURLOPT_USERAGENT, "curl/7.35.0");
-        curl_easy_setopt(h, CURLOPT_WRITEFUNCTION, write_function);
-        curl_easy_setopt(h, CURLOPT_WRITEDATA, args.response);
-        curl_easy_setopt(h, CURLOPT_VERBOSE, args.verbose);
-
-        if ( curl_easy_perform(h) != CURLE_OK ) {
-            curl_easy_cleanup(h);
-            fputs("Could not reach qurl.org\n", stderr);
-            exit(1);
-        } else {
-            if ( args.response[3] == 'x' ) { // {"exists" ...
-                char lnk_url [26] = {'\0'}; // largest possible is 23 at the moment
-                char existed [6] = {'\0'};
-
-                sscanf(args.response, "%*[^:]:%[^,],%*[^:]:\"%[^\"]", existed, lnk_url);
-
-                char * lnk_ptr = lnk_url;
-                char strpd_url [26];
-                char * strpd_ptr = strpd_url;
-
-                while ( *lnk_ptr ) {
-                    if ( *lnk_ptr != '\\' ) {
-                        *strpd_ptr = *lnk_ptr;
-                        strpd_ptr ++;
-                    } lnk_ptr ++;
-                }
-
-                *strpd_ptr = '\0';
-
-                printf("Link %s: %s\n", (existed[0] == 't' ? "existed" : "did not exist"),
-                       strpd_url);
-            } else {
-                fprintf(stderr,"Not a valid URL\n");
-                status = 1;
-            }
-        }
-    } curl_easy_cleanup(h);
-    return status;
+    if ( argc <= 1 || !args.url_count ) {
+        fputs("You must pass at least one URL to shorten\n", stderr);
+        return 1;
+    } return 0;
 }
 
 // Function Definitions //
@@ -107,18 +66,72 @@ write_function (const char * buffer, size_t size, size_t nmemb, char * userp) {
     return length;
 }
 
+static CURLcode
+shorten_url (const char * url, char * response, bool verbosity) {
+
+    CURL * h = curl_easy_init();
+    CURLcode res;
+
+    if ( !h ) {
+        fputs("Failed to get CURL handle", stderr);
+        return CURLE_FAILED_INIT;
+    }
+
+    curl_easy_setopt(h, CURLOPT_URL, url);
+    curl_easy_setopt(h, CURLOPT_FOLLOWLOCATION, 1);
+    curl_easy_setopt(h, CURLOPT_USERAGENT, "curl/7.35.0");
+    curl_easy_setopt(h, CURLOPT_WRITEFUNCTION, write_function);
+    curl_easy_setopt(h, CURLOPT_WRITEDATA, response);
+    curl_easy_setopt(h, CURLOPT_VERBOSE, verbosity);
+
+    if ( (res = curl_easy_perform(h)) != CURLE_OK ) {
+        curl_easy_cleanup(h);
+        fprintf(stderr, "Error connecting to qurl.org -- %s\n",
+                curl_easy_strerror(res));
+        return res;
+    } else {
+        if ( response[3] == 'x' ) { // {"exists" ...
+            char lnk_url [26] = {'\0'}; // largest possible is 23 at the moment
+            char exists [6] = {'\0'};
+
+            sscanf(response, "%*[^:]:%[^,],%*[^:]:\"%[^\"]", exists, lnk_url);
+
+            char * lnk_ptr = lnk_url;
+            char strpd_url [26];
+            char * strpd_ptr = strpd_url;
+
+            while ( *lnk_ptr ) {
+                if ( *lnk_ptr != '\\' ) {
+                    *strpd_ptr = *lnk_ptr;
+                    strpd_ptr ++;
+                } lnk_ptr ++;
+            } *strpd_ptr = '\0';
+
+            printf("Link %s: %s\n",
+                   (exists[0] == 't' ? "existed" : "did not exist"), strpd_url);
+        } else {
+            fprintf(stderr,"Not a valid URL\n");
+            return CURLE_URL_MALFORMAT;
+        }
+    } curl_easy_cleanup(h); return CURLE_OK;
+}
+
 static error_t
 parse_opt (signed key, char * arg, struct argp_state * state) {
 
     struct args * args = state->input;
     switch ( key ) {
         case 'v':
-            args->verbose = true;
+            args->verbosity = true;
             break;
 
         case 'u':
-            snprintf(args->url, sizeof(args->url),
-                     "http://qurl.org/api/url?url=%s", arg);
+            args->url_count ++;
+            unsigned long len = strlen(arg) + 29;
+            char * url = malloc(len);
+            snprintf(url, len, "http://qurl.org/api/url?url=%s", arg);
+            shorten_url(url, args->response, args->verbosity);
+            if ( url ) { free(url); }
             break;
 
         default:
