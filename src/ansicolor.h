@@ -4,11 +4,8 @@
 * the GNU Public License version 2                *
 \*************************************************/
 
-#ifndef __ANSICOLOR_H__
-#define __ANSICOLOR_H__
-
-// Includes //
-#include <stdio.h>
+#ifndef ANSICOLOR_H
+#define ANSICOLOR_H
 
 // Definitions //
 #define ANSI_RESET         "\x1b[0m"
@@ -35,5 +32,5 @@
 #define ANSI_BG_WHITE      "\x1b[47m"
 #define ANSI_BG_DEFAULT    "\x1b[49m"
 
-#endif // __ANSICOLOR_H__
+#endif // ANSICOLOR_H
 // vim: set ts=4 sw=4 et:
