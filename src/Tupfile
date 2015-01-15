@@ -1,5 +1,5 @@
 CC = clang
-CFLAGS += -g -O2 -Weverything -Wno-disabled-macro-expansion -Wno-unused-parameter -fstack-protector-all -fpie -pie -Wl,-z,relro,-z,now -std=c11
+CFLAGS += -g -Weverything -Wno-disabled-macro-expansion -Wno-unused-parameter -fstack-protector-all -fpie -pie -Wl,-z,relro,-z,now -std=c11
 LIBS += `pkg-config --libs-only-l libcurl`
 SRC = hr.c isitup.c lsip.c pomf.c qurl.c sicolor.c
 #SRC = hr.c isitup.c lsip.c pomf.c qurl.c sicolor.c pipes.c
