@@ -15,15 +15,15 @@ const char * argp_program_version = "lsip 1.1.0";
 const char * argp_program_bug_address = "<halosghost@archlinux.info>";
 static char * doc = "lsip -- a simple tool to check external IP addresses";
 
-static int
-get_ip (long mode);
+static signed
+get_ip (long);
 
 static error_t
-parse_opt (int key, char * arg, struct argp_state * state);
+parse_opt (signed, char *, struct argp_state *);
 
 // Main Function //
-int 
-main (int argc, char * argv []) {
+signed
+main (signed argc, char * argv []) {
 
     struct argp_option os [] = {
         { 0,      0,   0, 0, "Options:",          -1 },
@@ -39,14 +39,14 @@ main (int argc, char * argv []) {
 }
 
 // Function Definitions //
-static int
+static signed
 get_ip (long mode) {
 
     CURL * handle = curl_easy_init();
     CURLcode res;
 
-    if ( !handle ) { 
-        fputs("Failed to get CURL handle", stderr); 
+    if ( !handle ) {
+        fputs("Failed to get CURL handle", stderr);
         return 1;
     }
 
@@ -57,7 +57,7 @@ get_ip (long mode) {
     res = curl_easy_perform(handle);
 
     if ( res != CURLE_OK ) {
-        fprintf(stderr, "Failed to fetch address: %s\n", 
+        fprintf(stderr, "Failed to fetch address: %s\n",
                 curl_easy_strerror(res));
         return 2;
     }
@@ -67,7 +67,7 @@ get_ip (long mode) {
 }
 
 static error_t
-parse_opt (int key, char * arg, struct argp_state * state) {
+parse_opt (signed key, char * arg, struct argp_state * state) {
 
     switch ( key ) {
         case '4':
