@@ -77,20 +77,20 @@ main (int32_t argc, char * argv []) {
             int32_t port, http_response;
             double response_time;
             char ip_addr [43];
-            sscanf(args.response, "%*[^,], %d, %hhu, %[^,], %d, %lg", 
+            sscanf(args.response, "%*[^,], %d, %hhu, %[^,], %d, %lg",
                    &port, &status, ip_addr, &http_response, &response_time);
 
             if ( !args.quiet ) {
                 printf("%s:%d ", ip_addr, port);
-                if ( status > 1 ) { 
-                    printf("appears down\n"); 
-                } else { 
-                    printf("(%d after %lgs)\n", http_response, response_time); 
+                if ( status > 1 ) {
+                    printf("appears down\n");
+                } else {
+                    printf("(%d after %lgs)\n", http_response, response_time);
                 }
             }
         }
     }
-    
+
     curl_easy_cleanup(handle);
     return (status-1);
 }
@@ -112,7 +112,7 @@ parse_opt (int32_t key, char * arg, struct argp_state * state) {
             break;
 
         case 'u':
-            snprintf(args->uri, sizeof(args->uri), 
+            snprintf(args->uri, sizeof(args->uri),
                      "http://isitup.org/%s.txt", arg);
             break;
 
@@ -121,7 +121,7 @@ parse_opt (int32_t key, char * arg, struct argp_state * state) {
     } return 0;
 }
 
-static size_t 
+static size_t
 write_function (const char * buffer, size_t size, size_t nmemb, char * userp) {
 
     char * string = userp;
