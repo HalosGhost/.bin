@@ -29,7 +29,10 @@ main (void) { // Add argp support
 
 		glob_t glb;
 		r = glob("./*.acf", NULL, NULL, &glb);
-		// check for errors on the glob; loop through the files and parse them
+		if ( r ) {
+			fprintf(stderr, "Something went horribly wrong (with the globbing)!\n");
+		}
+		// loop through the files and parse them
 	} return 0;
 }
 
