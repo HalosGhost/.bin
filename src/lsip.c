@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <argp.h>
+#include <stdint.h>
 #include <curl/curl.h>
 
 // Forward Definitions //
@@ -15,15 +16,15 @@ const char * argp_program_version = "lsip 1.1.0";
 const char * argp_program_bug_address = "<halosghost@archlinux.info>";
 static char * doc = "lsip -- a simple tool to check external IP addresses";
 
-static signed
-get_ip (long);
+static inline int32_t
+get_ip (int64_t);
 
 static error_t
-parse_opt (signed, char *, struct argp_state *);
+parse_opt (int32_t, char *, struct argp_state *);
 
 // Main Function //
-signed
-main (signed argc, char * argv []) {
+int32_t
+main (int32_t argc, char * argv []) {
 
     struct argp_option os [] = {
         { 0,      0,   0, 0, "Options:",          -1 },
@@ -39,8 +40,8 @@ main (signed argc, char * argv []) {
 }
 
 // Function Definitions //
-static signed
-get_ip (long mode) {
+static int32_t
+get_ip (int64_t mode) {
 
     CURL * handle = curl_easy_init();
     CURLcode res;
@@ -67,7 +68,7 @@ get_ip (long mode) {
 }
 
 static error_t
-parse_opt (signed key, char * arg, struct argp_state * state) {
+parse_opt (int32_t key, char * arg, struct argp_state * state) {
 
     switch ( key ) {
         case '4':
