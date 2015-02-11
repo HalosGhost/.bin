@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <argp.h>
 #include <stdbool.h>
@@ -30,25 +31,25 @@ static char * doc = "pomf -- a simple tool to upload files to pomf.se";
  */
 
 struct args {
-    unsigned char file_count;
+    uint8_t file_count;
     bool verbosity;
 };
 
 static size_t
 write_function (char *, size_t, size_t, char *);
 
-static unsigned char
+static uint8_t
 check_file_size (const char *);
 
 static CURLcode
 upload_file (const char *, bool);
 
 static error_t
-parse_opt (signed, char *, struct argp_state *);
+parse_opt (int32_t, char *, struct argp_state *);
 
 // Main Function //
-signed
-main (signed argc, char * argv []) {
+int32_t
+main (int32_t argc, char * argv []) {
 
     struct argp_option os [] = {
         { 0,         0,   0,      0, "Options:",        -1 },
@@ -76,7 +77,7 @@ write_function (char * buffer, size_t size, size_t nmemb, char * userp) {
     return length;
 }
 
-static unsigned char
+static uint8_t
 check_file_size (const char * path) {
 
     struct stat b;
@@ -137,7 +138,7 @@ upload_file (const char * path, bool verbosity) {
 }
 
 static error_t
-parse_opt (signed key, char * arg, struct argp_state * state) {
+parse_opt (int32_t key, char * arg, struct argp_state * state) {
 
     struct args * a = state->input;
     switch ( key ) {
