@@ -1,7 +1,7 @@
 CC = clang
 CFLAGS += -g -Weverything -Wno-disabled-macro-expansion -Wno-unused-parameter -fstack-protector-all -fpie -pie -Wl,-z,relro,-z,now -std=c11
 LIBS += `pkg-config --libs-only-l libcurl`
-SRC = hr.c isitup.c lsip.c pomf.c qurl.c sicolor.c steamlibrary.c
+SRC = hr.c isitup.c lsip.c pomf.c qurl.c sicolor.c steamlib.c
 #SRC = hr.c isitup.c lsip.c pomf.c qurl.c sicolor.c pipes.c
 
 : foreach $(SRC) | ansicolor.h |> $(CC) $(CFLAGS) $(LIBS) %f -o %o |> %B.out
