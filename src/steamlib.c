@@ -20,20 +20,22 @@ main (void) { // Add argp support
         size_t n = strlen(home) + 31;
         char steamdir [n + 1];
         strncpy(steamdir, home, n);
-        strncat(steamdir, "/.local/share/Steam/steamapps/", n - strlen(steamdir));
+        strncat(steamdir, "/.local/share/Steam/steamapps/",
+                n - strlen(steamdir));
 
         errno = 0;
         int32_t r = chdir(steamdir);
         int32_t errsv = errno;
         if ( r ) {
-            fprintf(stderr, "Something went horribly wrong!: %s\n", strerror(errsv));
+            fprintf(stderr, "Something went horribly wrong!: %s\n",
+                    strerror(errsv));
             return 1;
         }
 
         glob_t glb;
         r = glob("./*.acf", 0, NULL, &glb);
         if ( r ) {
-            fprintf(stderr, "Something went horribly wrong (with the globbing)!\n");
+            fputs("Something went horribly wrong (during globbing)!\n", stderr);
         }
 
         FILE * f;
@@ -41,7 +43,8 @@ main (void) { // Add argp support
         char appname [128]; // longest game title I can find is 78-ish chars
         for ( size_t i = 0; i < glb.gl_pathc; i ++ ) {
             f = fopen(glb.gl_pathv[i], "r");
-            fscanf(f, "%*[^d]d\"%*[^\"]\"%u%*[^m]me\"%*[^\"]\"%[^\"]", &appid, appname);
+            fscanf(f, "%*[^d]d\"%*[^\"]\"%u%*[^m]me\"%*[^\"]\"%[^\"]",
+                   &appid, appname);
             printf("%u: %s\n", appid, appname);
             fclose(f);
         }
