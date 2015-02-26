@@ -4,7 +4,7 @@
 * the GNU Public License version 2                       *
 \********************************************************/
 
-#include <stdint.h> // int32_t
+#include <stdint.h> // int32_t, uint32_t
 #include <stdlib.h> // getenv()
 #include <string.h> // strlen(), strncpy(), strncat(), strerror()
 #include <errno.h>  // errno
@@ -12,8 +12,19 @@
 #include <stdio.h>  // fprintf(), fopen(), fscanf(), printf(), fclose()
 #include <glob.h>   // glob_t, glob(), gl_pathc, gl_pathv
 
+void
+print_library (glob_t *);
+
+/**
+ * TODO:
+ * Add argument parsing
+ * Add ability to specify a path
+ * Add {,reverse} lookup functionality
+ * Align and (correctly) sort output
+ */
+
 int32_t
-main (void) { // Add argp support
+main (void) {
 
     const char * home = getenv("HOME");
     if ( home ) {
@@ -36,19 +47,23 @@ main (void) { // Add argp support
         r = glob("./*.acf", 0, NULL, &glb);
         if ( r ) {
             fputs("Something went horribly wrong (during globbing)!\n", stderr);
-        }
-
-        FILE * f;
-        uint32_t appid;
-        char appname [128]; // longest game title I can find is 78-ish chars
-        for ( size_t i = 0; i < glb.gl_pathc; i ++ ) {
-            f = fopen(glb.gl_pathv[i], "r");
-            fscanf(f, "%*[^d]d\"%*[^\"]\"%u%*[^m]me\"%*[^\"]\"%[^\"]",
-                   &appid, appname);
-            printf("%u: %s\n", appid, appname);
-            fclose(f);
-        }
+        } print_library(&glb); globfree(&glb);
     } return 0;
+}
+
+void
+print_library (glob_t * glb) {
+
+    FILE * f;
+    uint32_t appid;
+    char appname [128]; // longest game title I can find is 78-ish chars
+    for ( size_t i = 0; i < glb->gl_pathc; i ++ ) {
+        f = fopen(glb->gl_pathv[i], "r");
+        fscanf(f, "%*[^d]d\"%*[^\"]\"%u%*[^m]me\"%*[^\"]\"%[^\"]",
+               &appid, appname);
+        printf("%u: %s\n", appid, appname);
+        fclose(f);
+    }
 }
 
 // vim: set ts=4 sw=4 et:
