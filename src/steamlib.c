@@ -4,51 +4,110 @@
 * the GNU Public License version 2                       *
 \********************************************************/
 
-#include <stdint.h> // int32_t, uint32_t
-#include <stdlib.h> // getenv()
-#include <string.h> // strlen(), strncpy(), strncat(), strerror()
-#include <errno.h>  // errno
-#include <unistd.h> // chdir()
-#include <stdio.h>  // fprintf(), fopen(), fscanf(), printf(), fclose()
-#include <glob.h>   // glob_t, glob(), gl_pathc, gl_pathv
+#include <stdbool.h> // bool
+#include <stdint.h>  // int32_t, uint32_t
+#include <argp.h>    // struct argp_state, struct argp, argp_parse()
+#include <stdlib.h>  // getenv()
+#include <string.h>  // strlen(), strncpy(), strncat(), strerror()
+#include <errno.h>   // errno
+#include <unistd.h>  // chdir()
+#include <stdio.h>   // fprintf(), fopen(), fscanf(), printf(), fclose()
+#include <glob.h>    // glob_t, glob(), globfree(), gl_pathc, gl_pathv
+
+const char * argp_program_version = "steamlib 1.0";
+const char * argp_program_bug_address = "<halosghost@archlinux.info>";
+static char * doc = "steamlib -- a tool to interact with a steam library";
+
+struct args {
+    char * path, * title, * appid;
+    bool launch, print;
+};
+
+bool
+identify_acfs (glob_t *, const char *);
 
 void
 print_library (glob_t *);
 
+static error_t
+parse_opt (int32_t, char *, struct argp_state *);
+
 /**
  * TODO:
- * Add argument parsing
- * Add ability to specify a path
  * Add {,reverse} lookup functionality
+ * Add launch functionality
  * Align and (correctly) sort output
  */
 
 int32_t
-main (void) {
+main (int32_t argc, char * argv []) {
 
-    const char * home = getenv("HOME");
-    if ( home ) {
-        size_t n = strlen(home) + 31;
-        char steamdir [n + 1];
-        strncpy(steamdir, home, n);
-        strncat(steamdir, "/.local/share/Steam/steamapps/",
-                n - strlen(steamdir));
+    struct argp_option os [] = {
+        { 0,         0,   0,       0, "Options:",                        -1 },
+        { "launch",  'l', 0,       0, "Run the looked-up game",           0 },
+        { "lookup",  'r', "TITLE", 0, "Return appID of game with TITLE",  0 },
+        { "reverse", 'R', "APPID", 0, "Return title of game with APPID",  0 },
+        { "path",    'p', "PATH",  0, "Look for .acf files in PATH",      0 },
+        { "print",   'P', 0,       0, "Print whole library",              0 },
+        { 0,         0,   0,       0, 0,                                  0 }
+    };
 
+    struct argp argp = { os, parse_opt, "", doc, 0, 0, 0 };
+    struct args as   = { 0, 0, 0, false };
+    as.print = !(argc - 1);
+    argp_parse(&argp, argc, argv, 0, 0, &as);
+
+    if ( as.print ) {
+        glob_t glb;
+        if ( identify_acfs(&glb, as.path) ) {
+            print_library(&glb);
+            globfree(&glb);
+        }
+    }
+
+    if ( as.path ) {
+        free(as.path);
+    } return 0;
+}
+
+bool
+identify_acfs (glob_t * glb, const char * path) {
+
+    char * p;
+    int32_t r, errsv;
+
+    if ( path ) {
+        p = path;
         errno = 0;
-        int32_t r = chdir(steamdir);
-        int32_t errsv = errno;
-        if ( r ) {
-            fprintf(stderr, "Something went horribly wrong!: %s\n",
-                    strerror(errsv));
-            return 1;
+        r = chdir(p);
+        errsv = errno;
+    } else {
+        p = getenv("HOME");
+        if ( !p ) {
+            fputs("Could not locate home folder!\n", stderr);
+            return false;
         }
 
-        glob_t glb;
-        r = glob("./*.acf", 0, NULL, &glb);
-        if ( r ) {
-            fputs("Something went horribly wrong (during globbing)!\n", stderr);
-        } print_library(&glb); globfree(&glb);
-    } return 0;
+        size_t n = strlen(p) + 31;
+        char steamdir [n + 1];
+        strncpy(steamdir, p, n);
+        strncat(steamdir, "/.local/share/Steam/steamapps/",
+                n - strlen(steamdir));
+        errno = 0;
+        r = chdir(steamdir);
+        errsv = errno;
+    }
+
+    if ( r ) {
+        fprintf(stderr, "Error: %s\n", strerror(errsv));
+        return false;
+    }
+
+    r = glob("./*.acf", 0, NULL, glb);
+    if ( r ) {
+        fputs("Globbing failed!\n", stderr);
+        return false;
+    } return true;
 }
 
 void
@@ -66,4 +125,29 @@ print_library (glob_t * glb) {
     }
 }
 
+static error_t
+parse_opt (int32_t key, char * arg, struct argp_state * state) {
+
+    struct args * a = state->input;
+    switch ( key ) {
+        case 'l': case 'r': case 'R':
+            fprintf(stderr, "%c: Not Yet Implemented\n", key);
+            break;
+
+        case 'p': {
+            size_t n = strlen(arg) + 1;
+            a->path = malloc(n);
+            strncpy(a->path, arg, n);
+            break;
+        }
+
+        case 'P':
+            a->print = true;
+            break;
+
+        default:
+            return ARGP_ERR_UNKNOWN;
+    } return 0;
+}
 // vim: set ts=4 sw=4 et:
+
