@@ -72,16 +72,15 @@ main (int32_t argc, char * argv []) {
 bool
 identify_acfs (glob_t * glb, const char * path) {
 
-    char * p;
     int32_t r, errsv;
 
     if ( path ) {
-        p = path;
+        const char * p = path;
         errno = 0;
         r = chdir(p);
         errsv = errno;
     } else {
-        p = getenv("HOME");
+        char * p = getenv("HOME");
         if ( !p ) {
             fputs("Could not locate home folder!\n", stderr);
             return false;
