@@ -53,8 +53,7 @@ main (int32_t argc, char * argv []) {
     };
 
     struct argp argp = { os, parse_opt, "", doc, 0, 0, 0 };
-    struct args as   = { 0, 0, 0, false };
-    as.print = !(argc - 1);
+    struct args as   = { 0, 0, 0, false, !(argc - 1) };
     argp_parse(&argp, argc, argv, 0, 0, &as);
 
     if ( as.print ) {
