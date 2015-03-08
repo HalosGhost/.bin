@@ -20,7 +20,7 @@ static char * doc = "steamlib -- a tool to interact with a steam library";
 
 struct args {
     char * path, * title, * appid;
-    bool launch, print;
+    uint64_t launch: 32, print: 32; // bools
 };
 
 bool
