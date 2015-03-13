@@ -5,10 +5,10 @@
 \**************************************************/
 
 // Libraries //
-#include <stdio.h>     // putchar()
-#include <string.h>    // strlen()
 #include <stdint.h>    // int32_t, uint16_6, uint64_t
 #include <sys/ioctl.h> // ioctl()
+#include <stdio.h>     // putchar()
+#include <string.h>    // strlen()
 
 // Main Function //
 int32_t
