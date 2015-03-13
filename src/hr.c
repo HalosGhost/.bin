@@ -5,10 +5,10 @@
 \**************************************************/
 
 // Libraries //
-#include <stdio.h>
-#include <string.h>
-#include <stdint.h>
-#include <sys/ioctl.h>
+#include <stdio.h>     // putchar()
+#include <string.h>    // strlen()
+#include <stdint.h>    // int32_t, uint16_6, uint64_t
+#include <sys/ioctl.h> // ioctl()
 
 // Main Function //
 int32_t
@@ -19,15 +19,15 @@ main (int32_t argc, char * argv []) {
     uint16_t COLS = (w.ws_col <= 0 ? 80 : w.ws_col);
 
     if ( argc <= 1 ) {
-        for ( uint16_t i = 0; i < COLS; i ++ ) { putchar('#'); } puts("");
+        for ( uint16_t i = 0; i < COLS; i ++ ) { putchar('#'); } putchar('\n');
     } else {
         for ( int32_t i = 1; i < argc; i ++ ) {
             uint64_t len = strlen(argv[i]);
             for ( uint16_t j = 0; j < COLS; j ++ ) {
                 putchar(argv[i][j%len]);
-            } puts("");
+            } putchar('\n');
         }
     } return 0;
 }
 
-// vim: set tabstop=4 shiftwidth=4 expandtab:
+// vim: set ts=4 sw=4 et:
