@@ -6,9 +6,10 @@
 
 // Libraries //
 #include <stdint.h>    // int32_t, uint16_6, uint64_t
-#include <sys/ioctl.h> // ioctl()
+#include <sys/ioctl.h> // struct winsize, ioctl()
 #include <stdio.h>     // putchar()
 #include <string.h>    // strlen()
+#include <stdlib.h>    // EXIT_SUCCESS
 
 // Main Function //
 int32_t
@@ -27,7 +28,7 @@ main (int32_t argc, char * argv []) {
                 putchar(argv[i][j%len]);
             } putchar('\n');
         }
-    } return 0;
+    } return EXIT_SUCCESS;
 }
 
 // vim: set ts=4 sw=4 et:
