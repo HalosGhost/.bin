@@ -7,12 +7,12 @@
 #include <stdbool.h> // bool
 #include <stdint.h>  // int32_t, uint32_t
 #include <argp.h>    // struct argp_state, struct argp, argp_parse()
+#include <glob.h>    // glob_t, glob(), globfree(), gl_pathc, gl_pathv
 #include <stdlib.h>  // getenv()
 #include <string.h>  // strlen(), strncpy(), strncat(), strerror()
 #include <errno.h>   // errno
 #include <unistd.h>  // chdir()
 #include <stdio.h>   // fprintf(), fopen(), fscanf(), printf(), fclose()
-#include <glob.h>    // glob_t, glob(), globfree(), gl_pathc, gl_pathv
 
 const char * argp_program_version = "steamlib 1.0";
 const char * argp_program_bug_address = "<halosghost@archlinux.info>";
@@ -23,11 +23,13 @@ struct args {
     uint64_t launch: 32, print: 32; // bools
 };
 
+struct game {
+    char name [80]; // longest game name I could find is 78ish chars
+    uint32_t id;
+};
+
 bool
 identify_acfs (glob_t *, const char *);
-
-void
-print_library (glob_t *);
 
 static error_t
 parse_opt (int32_t, char *, struct argp_state *);
@@ -56,14 +58,25 @@ main (int32_t argc, char * argv []) {
     struct args as   = { 0, 0, 0, false, !(argc - 1) };
     argp_parse(&argp, argc, argv, 0, 0, &as);
 
+    glob_t glb;
+    identify_acfs(&glb, as.path); // do error checking on this!
+    struct game library [glb.gl_pathc];
+
+    FILE * f;
+    for ( size_t i = 0; i < glb.gl_pathc; i ++ ) {
+        f = fopen(glb.gl_pathv[i], "r");
+        fscanf(f, "%*[^d]d\"%*[^\"]\"%u%*[^m]me\"%*[^\"]\"%[^\"]",
+               &library[i].id, library[i].name);
+        fclose(f);
+    }
+
     if ( as.print ) {
-        glob_t glb;
-        if ( identify_acfs(&glb, as.path) ) {
-            print_library(&glb);
-            globfree(&glb);
+        for ( size_t i = 0; i < glb.gl_pathc; i ++ ) {
+            printf("%u: %s\n", library[i].id, library[i].name);
         }
     }
 
+    globfree(&glb);
     if ( as.path ) {
         free(as.path);
     } return 0;
@@ -108,21 +121,6 @@ identify_acfs (glob_t * glb, const char * path) {
     } return true;
 }
 
-void
-print_library (glob_t * glb) {
-
-    FILE * f;
-    uint32_t appid;
-    char appname [128]; // longest game title I can find is 78-ish chars
-    for ( size_t i = 0; i < glb->gl_pathc; i ++ ) {
-        f = fopen(glb->gl_pathv[i], "r");
-        fscanf(f, "%*[^d]d\"%*[^\"]\"%u%*[^m]me\"%*[^\"]\"%[^\"]",
-               &appid, appname);
-        printf("%u: %s\n", appid, appname);
-        fclose(f);
-    }
-}
-
 static error_t
 parse_opt (int32_t key, char * arg, struct argp_state * state) {
 
@@ -134,6 +132,7 @@ parse_opt (int32_t key, char * arg, struct argp_state * state) {
 
         case 'p': {
             size_t n = strlen(arg) + 1;
+            if ( a->path ) { free(a->path); }
             a->path = malloc(n);
             strncpy(a->path, arg, n);
             break;
