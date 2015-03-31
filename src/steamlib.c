@@ -8,7 +8,7 @@
 #include <stdint.h>  // int32_t, uint32_t
 #include <argp.h>    // struct argp_state, struct argp, argp_parse()
 #include <glob.h>    // glob_t, glob(), globfree(), gl_pathc, gl_pathv
-#include <stdlib.h>  // getenv()
+#include <stdlib.h>  // getenv(), EXIT_FAILURE, EXIT_SUCCESS
 #include <string.h>  // strlen(), strncpy(), strncat(), strerror()
 #include <errno.h>   // errno
 #include <unistd.h>  // chdir()
@@ -44,7 +44,7 @@ parse_opt (int32_t, char *, struct argp_state *);
 int32_t
 main (int32_t argc, char * argv []) {
 
-    struct argp_option os [] = {
+    const struct argp_option os [] = {
         { 0,         0,   0,       0, "Options:",                        -1 },
         { "launch",  'l', 0,       0, "Run the looked-up game",           0 },
         { "lookup",  'r', "TITLE", 0, "Return appID of game with TITLE",  0 },
@@ -59,7 +59,10 @@ main (int32_t argc, char * argv []) {
     argp_parse(&argp, argc, argv, 0, 0, &as);
 
     glob_t glb;
-    identify_acfs(&glb, as.path); // do error checking on this!
+    if ( !identify_acfs(&glb, as.path) ) {
+        return EXIT_FAILURE;
+    }
+
     struct game library [glb.gl_pathc];
 
     FILE * f;
@@ -79,7 +82,7 @@ main (int32_t argc, char * argv []) {
     globfree(&glb);
     if ( as.path ) {
         free(as.path);
-    } return 0;
+    } return EXIT_SUCCESS;
 }
 
 bool
