@@ -12,3 +12,4 @@ To-Do
 -----
 
 - [ ] A `ghcal <https://github.com/IonicaBizau/ghcal>`_ port to C
+- [ ] A `ptpb <https://ptpb.pw>`_ client in C (to replace ``pomf``)
