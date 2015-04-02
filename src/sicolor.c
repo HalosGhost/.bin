@@ -6,81 +6,81 @@
 \**************************************************/
 
 // Includes //
-#include <stdio.h>
-#include <stdint.h>
-#include "ansicolor.h"
+#include <stdio.h>     // printf()
+#include <stdlib.h>    // EXIT_SUCCESS
+#include "ansicolor.h" // ANSI escapes
 
 // Main Function //
-int32_t
+signed
 main (void) {
 
     /* Top Row Invaders */
-    printf(ANSI_FG_BLACK   "  ▀▄   ▄▀   " 
-           ANSI_FG_RED     "  ▄▄▄████▄▄▄  " 
-           ANSI_FG_GREEN   "   ▄██▄   " 
-           ANSI_FG_YELLOW  "   ▀▄   ▄▀   " 
-           ANSI_FG_BLUE    "  ▄▄▄████▄▄▄  " 
-           ANSI_FG_MAGENTA "   ▄██▄   " 
+    printf(ANSI_FG_BLACK   "  ▀▄   ▄▀   "
+           ANSI_FG_RED     "  ▄▄▄████▄▄▄  "
+           ANSI_FG_GREEN   "   ▄██▄   "
+           ANSI_FG_YELLOW  "   ▀▄   ▄▀   "
+           ANSI_FG_BLUE    "  ▄▄▄████▄▄▄  "
+           ANSI_FG_MAGENTA "   ▄██▄   "
            ANSI_FG_CYAN    "   ▀▄   ▄▀   \n"
 
-           ANSI_FG_BLACK   " ▄█▀███▀█▄  " 
-           ANSI_FG_RED     " ███▀▀██▀▀███ " 
-           ANSI_FG_GREEN   " ▄█▀██▀█▄ " 
-           ANSI_FG_YELLOW  "  ▄█▀███▀█▄  " 
-           ANSI_FG_BLUE    " ███▀▀██▀▀███ " 
-           ANSI_FG_MAGENTA " ▄█▀██▀█▄ " 
+           ANSI_FG_BLACK   " ▄█▀███▀█▄  "
+           ANSI_FG_RED     " ███▀▀██▀▀███ "
+           ANSI_FG_GREEN   " ▄█▀██▀█▄ "
+           ANSI_FG_YELLOW  "  ▄█▀███▀█▄  "
+           ANSI_FG_BLUE    " ███▀▀██▀▀███ "
+           ANSI_FG_MAGENTA " ▄█▀██▀█▄ "
            ANSI_FG_CYAN    "  ▄█▀███▀█▄  \n"
 
-           ANSI_FG_BLACK   "█▀███████▀█ " 
-           ANSI_FG_RED     " ▀▀███▀▀███▀▀ " 
-           ANSI_FG_GREEN   " ▀█▀██▀█▀ " 
-           ANSI_FG_YELLOW  " █▀███████▀█ " 
-           ANSI_FG_BLUE    " ▀▀███▀▀███▀▀ " 
-           ANSI_FG_MAGENTA " ▀█▀██▀█▀ " 
+           ANSI_FG_BLACK   "█▀███████▀█ "
+           ANSI_FG_RED     " ▀▀███▀▀███▀▀ "
+           ANSI_FG_GREEN   " ▀█▀██▀█▀ "
+           ANSI_FG_YELLOW  " █▀███████▀█ "
+           ANSI_FG_BLUE    " ▀▀███▀▀███▀▀ "
+           ANSI_FG_MAGENTA " ▀█▀██▀█▀ "
            ANSI_FG_CYAN    " █▀███████▀█ \n"
 
            ANSI_FG_BLACK   "▀ ▀▄▄ ▄▄▀ ▀ "
            ANSI_FG_RED     "  ▀█▄ ▀▀ ▄█▀  "
-           ANSI_FG_GREEN   " ▀▄    ▄▀ " 
-           ANSI_FG_YELLOW  " ▀ ▀▄▄ ▄▄▀ ▀ " 
-           ANSI_FG_BLUE    "  ▀█▄ ▀▀ ▄█▀  " 
-           ANSI_FG_MAGENTA " ▀▄    ▄▀ " 
+           ANSI_FG_GREEN   " ▀▄    ▄▀ "
+           ANSI_FG_YELLOW  " ▀ ▀▄▄ ▄▄▀ ▀ "
+           ANSI_FG_BLUE    "  ▀█▄ ▀▀ ▄█▀  "
+           ANSI_FG_MAGENTA " ▀▄    ▄▀ "
            ANSI_FG_CYAN    " ▀ ▀▄▄ ▄▄▀ ▀ \n"
            ANSI_BOLD_ON    "\n"
 
     /* Bottom Row Invaders */
-           ANSI_FG_BLACK   "▄ ▀▄   ▄▀ ▄ " 
-           ANSI_FG_RED     "  ▄▄▄████▄▄▄  " 
-           ANSI_FG_GREEN   "   ▄██▄   " 
-           ANSI_FG_YELLOW  " ▄ ▀▄   ▄▀ ▄ " 
-           ANSI_FG_BLUE    "  ▄▄▄████▄▄▄  " 
-           ANSI_FG_MAGENTA "   ▄██▄   " 
-           ANSI_FG_CYAN    " ▄ ▀▄   ▄▀ ▄ \n" 
-           
-           ANSI_FG_BLACK   "█▄█▀███▀█▄█ " 
-           ANSI_FG_RED     " ███▀▀██▀▀███ " 
-           ANSI_FG_GREEN   " ▄█▀██▀█▄ " 
-           ANSI_FG_YELLOW  " █▄█▀███▀█▄█ " 
-           ANSI_FG_BLUE    " ███▀▀██▀▀███ " 
-           ANSI_FG_MAGENTA " ▄█▀██▀█▄ " 
-           ANSI_FG_CYAN    " █▄█▀███▀█▄█ \n" 
-           
-           ANSI_FG_BLACK   "▀█████████▀ " 
-           ANSI_FG_RED     " ▀▀▀██▀▀██▀▀▀ " 
-           ANSI_FG_GREEN   " ▀▀█▀▀█▀▀ " 
-           ANSI_FG_YELLOW  " ▀█████████▀ " 
-           ANSI_FG_BLUE    " ▀▀▀██▀▀██▀▀▀ " 
-           ANSI_FG_MAGENTA " ▀▀█▀▀█▀▀ " 
-           ANSI_FG_CYAN    " ▀█████████▀ \n" 
-           
+           ANSI_FG_BLACK   "▄ ▀▄   ▄▀ ▄ "
+           ANSI_FG_RED     "  ▄▄▄████▄▄▄  "
+           ANSI_FG_GREEN   "   ▄██▄   "
+           ANSI_FG_YELLOW  " ▄ ▀▄   ▄▀ ▄ "
+           ANSI_FG_BLUE    "  ▄▄▄████▄▄▄  "
+           ANSI_FG_MAGENTA "   ▄██▄   "
+           ANSI_FG_CYAN    " ▄ ▀▄   ▄▀ ▄ \n"
+
+           ANSI_FG_BLACK   "█▄█▀███▀█▄█ "
+           ANSI_FG_RED     " ███▀▀██▀▀███ "
+           ANSI_FG_GREEN   " ▄█▀██▀█▄ "
+           ANSI_FG_YELLOW  " █▄█▀███▀█▄█ "
+           ANSI_FG_BLUE    " ███▀▀██▀▀███ "
+           ANSI_FG_MAGENTA " ▄█▀██▀█▄ "
+           ANSI_FG_CYAN    " █▄█▀███▀█▄█ \n"
+
+           ANSI_FG_BLACK   "▀█████████▀ "
+           ANSI_FG_RED     " ▀▀▀██▀▀██▀▀▀ "
+           ANSI_FG_GREEN   " ▀▀█▀▀█▀▀ "
+           ANSI_FG_YELLOW  " ▀█████████▀ "
+           ANSI_FG_BLUE    " ▀▀▀██▀▀██▀▀▀ "
+           ANSI_FG_MAGENTA " ▀▀█▀▀█▀▀ "
+           ANSI_FG_CYAN    " ▀█████████▀ \n"
+
            ANSI_FG_BLACK   " ▄▀     ▀▄  "
            ANSI_FG_RED     " ▄▄▀▀ ▀▀ ▀▀▄▄ "
-           ANSI_FG_GREEN   " ▄▀▄▀▀▄▀▄ " 
-           ANSI_FG_YELLOW  "  ▄▀     ▀▄  " 
-           ANSI_FG_BLUE    " ▄▄▀▀ ▀▀ ▀▀▄▄ " 
-           ANSI_FG_MAGENTA " ▄▀▄▀▀▄▀▄ " 
-           ANSI_FG_CYAN    "  ▄▀     ▀▄  \n" 
-           
+           ANSI_FG_GREEN   " ▄▀▄▀▀▄▀▄ "
+           ANSI_FG_YELLOW  "  ▄▀     ▀▄  "
+           ANSI_FG_BLUE    " ▄▄▀▀ ▀▀ ▀▀▄▄ "
+           ANSI_FG_MAGENTA " ▄▀▄▀▀▄▀▄ "
+           ANSI_FG_CYAN    "  ▄▀     ▀▄  \n"
+
            ANSI_RESET      "\n"
 
     /* Defender's Tank */
@@ -90,7 +90,7 @@ main (void) {
            "\t\t\t\t  ▄█████████▄\n"
            "\t\t\t\t  ▀▀▀▀▀▀▀▀▀▀▀\n");
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 // vim: set ts=4 sw=4 et:
