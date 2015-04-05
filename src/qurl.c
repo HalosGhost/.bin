@@ -53,8 +53,8 @@ main (signed argc, char * argv []) {
 
     if ( argc <= 1 || !args.url_count ) {
         fputs("You must pass at least one URL to shorten\n", stderr);
-        return 1;
-    } return 0;
+        return EXIT_FAILURE;
+    } return EXIT_SUCCESS;
 }
 
 // Function Definitions //
