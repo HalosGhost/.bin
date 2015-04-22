@@ -2,7 +2,7 @@
 
 get_urls () {
     tmux capture-pane -J
-    tmux show-buffer | xurls -s | tac | dmenu -b -l 10
+    tmux show-buffer | xurls | tac | dmenu -b -l 10
 }
 
 follow () {
