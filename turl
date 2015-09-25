@@ -10,7 +10,7 @@ follow () {
 }
 
 grab () {
-    get_urls | xargs -r | xsel -i
+    get_urls | xargs -r | xclip -i
 }
 
 if [[ "$1" == "-g" ]]; then
