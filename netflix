@@ -1,0 +1,6 @@
+if [ -f "/usr/bin/optirun" ]; then
+    optirun chromium --app="https://netflix.com" "$@"
+else
+    chromium --app="https://netflix.com" "$@"
+fi
+
