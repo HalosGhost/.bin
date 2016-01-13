@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
+export QEMU_AUDIO_DRV=pa
+
 run_vm () {
     (cd "$HOME/prj/ani/vms/$1/$2"
-    qemu-system-x86_64 -m 4G -drive file=./disk.img,index=0,media=disk,format=raw -enable-kvm -cpu host "$3")
+    qemu-system-x86_64 -m 4G -drive file=./disk.img,index=0,media=disk,format=raw -enable-kvm -cpu host -soundhw hda)
 }
 
-[[ "-live" == "$3" ]] && snap="" || snap="-snapshot"
-
 case "$1" in
-    "-w") run_vm win "$2" $snap;;
-    "-x") run_vm osx "$2" $snap;;
+    -w*) [[ "$3" == "-live" ]] && run_vm win "$2" || run_vm win "$2" -snapshot;;
+    -x*) [[ "$3" == "-live" ]] && run_vm osx "$2" || run_vm osx "$2" -snapshot;;
 esac
 
