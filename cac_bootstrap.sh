@@ -23,33 +23,48 @@ md5sum -c airootfs.md5 || die "verify squashfs"
 msg "Unmounting ISO"
 umount /mnt || die "unmount iso"
 
-msg "Delete ISO"
+msg "Deleting ISO"
 rm -- "$iso" || die "delete ISO"
 
 msg "Extracting Squashfs"
 unsquashfs airootfs.sfs || die "extract squashfs"
 
-msg "Clean old airootfs files"
+msg "\nCleaning old airootfs files"
 rm -- airootfs.* || die "clean up old airootfs files"
 
 msg "Making new_root target"
 mkdir -p new_root || die "create new_root target"
 
-nbytes="$(($(du -bs squashfs-root|cut -f1)+500))"
+nbytes="$(du -hs squashfs-root|cut -f1)"
 msg "Creating tmpfs of $nbytes bytes"
 mount -o size="$nbytes" -t tmpfs none ./new_root || die "create tmpfs"
 
 msg "Moving live files to new_root"
-mv squashfs-root/* ./new_root/ || die "move live files to new_root"
+cp -a squashfs-root/* ./new_root/ || die "move live files to new_root"
 rm -r -- squashfs-root || die "clean up squashfs-root dir"
 
-msg "Create location for old_root"
+msg "Creating location for old_root"
 mkdir -p new_root/old_root || die "create old_root"
 
-msg "Make old_root rprivate"
+msg "Copying ethernet config"
+cp /mnt2/ifecfg new_root/opt/ || die "copy ethernet config"
+
+msg "Making old_root rprivate"
 mount --make-rprivate / || die "make old_root rprivate"
 
-msg "Preemptively modprobe ext4"
+msg "Preemptively modprobing ext4"
 modprobe ext4 || die "modprobe ext4"
 
-msg "Ready for pivot_root"
+msg "Pivoting root"
+pivot_root new_root new_root/old_root || die "pivot root"
+
+msg "Moving old mounts"
+for i in {dev,run,sys,proc}; do
+    mount --move /old_root/"$i" /"$i" || die "move mounts"
+done
+
+msg "Killing pids holding old_root"
+fuser -k -m /old_root || die "kill pids holding old_root"
+
+msg "Unmounting old_root"
+umount -R /old_root || die "unmount old_root"
