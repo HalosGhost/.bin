@@ -47,7 +47,7 @@ msg "Creating location for old_root"
 mkdir -p new_root/old_root || die "create old_root"
 
 msg "Copying ethernet config"
-cp /mnt2/ifecfg new_root/opt/ || die "copy ethernet config"
+cp /mnt2/ifcfgeth new_root/opt/ || die "copy ethernet config"
 
 msg "Making old_root rprivate"
 mount --make-rprivate / || die "make old_root rprivate"
