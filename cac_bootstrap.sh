@@ -40,7 +40,9 @@ msg "Creating tmpfs of $nbytes bytes"
 mount -o size="$nbytes" -t tmpfs none ./new_root || die "create tmpfs"
 
 msg "Moving live files to new_root"
-cp -a squashfs-root/* ./new_root/ || die "move live files to new_root"
+for i in squashfs-root/*; do
+    cp "$i" ./new_root/ || die "move live files to new_root"
+done
 rm -r -- squashfs-root || die "clean up squashfs-root dir"
 
 msg "Creating location for old_root"
@@ -52,16 +54,21 @@ cp /mnt2/ifcfgeth new_root/opt/ || die "copy ethernet config"
 msg "Making old_root rprivate"
 mount --make-rprivate / || die "make old_root rprivate"
 
-msg "Preemptively modprobing ext4"
+msg "Preemptively modprobing ext4 and xfs"
 modprobe ext4 || die "modprobe ext4"
+modprobe xfs || die "modprobe xfs"
 
 msg "Pivoting root"
 pivot_root new_root new_root/old_root || die "pivot root"
+cd || die "cd to new root"
 
 msg "Moving old mounts"
 for i in {dev,run,sys,proc}; do
     mount --move /old_root/"$i" /"$i" || die "move mounts"
 done
+
+msg "Restarting daemons"
+systemctl daemon-reexec || die "restarting daemons"
 
 msg "Killing pids holding old_root"
 fuser -k -m /old_root || die "kill pids holding old_root"
