@@ -41,7 +41,7 @@ mount -o size="$nbytes" -t tmpfs none ./new_root || die "create tmpfs"
 
 msg "Moving live files to new_root"
 for i in squashfs-root/*; do
-    cp "$i" ./new_root/ || die "move $i to new_root"
+    cp -r "$i" ./new_root/ || die "move $i to new_root"
 done; rm -r -- squashfs-root || die "clean up squashfs-root dir"
 
 msg "Creating location for old_root"
