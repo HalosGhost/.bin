@@ -71,6 +71,3 @@ systemctl daemon-reexec || die "restarting daemons"
 
 msg "Killing pids holding old_root"
 fuser -k -m /old_root || die "kill pids holding old_root"
-
-msg "Unmounting old_root"
-umount -R /old_root || die "unmount old_root"
