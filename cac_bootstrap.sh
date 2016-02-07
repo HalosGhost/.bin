@@ -9,7 +9,7 @@ msg "Verifying we have the necessary tools"
 [ -f '/usr/bin/jshon' ] || die "find /usr/bin/jshon"
 
 msg "Selecting mirror"
-mirror="$(jshon -F <(curl https://www.archlinux.org/mirrors/status/json/) -e urls -a -e url -u|grep http|shuf|head -n 1)"
+mirror="$(jshon -F <(curl -s 'https://www.archlinux.org/mirrors/status/json/') -e urls -a -e url -u|grep http|shuf|head -n 1)"
 msg "selected $mirror"
 
 date=2016.02.01
