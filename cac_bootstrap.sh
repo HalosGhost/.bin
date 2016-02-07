@@ -35,7 +35,7 @@ rm -- airootfs.* || die "clean up old airootfs files"
 msg "Making new_root target"
 mkdir -p new_root || die "create new_root target"
 
-nbytes="$(($(du -s squashfs-root|cut -f1)+100000))"
+nbytes="$(($(du -s squashfs-root|cut -f1)+100000))K"
 msg "Creating tmpfs of $nbytes bytes"
 mount -o size="$nbytes" -t tmpfs none ./new_root || die "create tmpfs"
 
