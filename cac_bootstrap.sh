@@ -69,5 +69,8 @@ done
 msg "Restarting daemons"
 systemctl daemon-reexec || die "restarting daemons"
 
+msg "Turning swapoff"
+swapoff -a || die "turn swap off"
+
 msg "Killing pids holding old_root"
 fuser -k -m /old_root || die "kill pids holding old_root"
