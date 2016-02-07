@@ -1,15 +1,23 @@
 #!/usr/bin/env bash
 
-mirror=http://archlinux.surlyjake.com
+die () { printf "failed to $1\n"; exit 1; }
+msg () { printf "$1\n"; }
+
+msg "Verifying we have the necessary tools"
+[ -f '/usr/bin/unsquashfs' ] || die "find /usr/bin/unsquashfs"
+[ -f '/usr/bin/curl' ] || die "find /usr/bin/curl"
+[ -f '/usr/bin/jshon' ] || die "find /usr/bin/jshon"
+
+msg "Selecting mirror"
+mirror="$(jshon -F <(curl https://www.archlinux.org/mirrors/status/json/) -e urls -a -e url -u|grep http|shuf|head -n 1)"
+msg "selected $mirror"
+
 date=2016.02.01
 iso=archlinux-"$date"-dual.iso
 arch=x86_64
 
-die () { printf "failed to $1\n"; exit 1; }
-msg () { printf "$1\n"; }
-
 msg "Downloading ISO from $mirror"
-curl -O "$mirror/archlinux/iso/$date/$iso" || die "download iso"
+curl -O "$mirror/iso/$date/$iso" || die "download iso"
 
 msg "Mounting ISO to /mnt"
 mount -o loop "$iso" /mnt || die "mount iso"
@@ -48,7 +56,7 @@ msg "Creating location for old_root"
 mkdir -p new_root/old_root || die "create old_root"
 
 msg "Copying ethernet config"
-cp /mnt2/ifcfgeth new_root/opt/ || die "copy ethernet config"
+cp /mnt2/ifcfgeth new_root/opt/ || die "copy ethernet config to /opt"
 
 msg "Making old_root rprivate"
 mount --make-rprivate / || die "make old_root rprivate"
