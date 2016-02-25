@@ -6,11 +6,10 @@ msg () { printf "$1\n"; }
 msg "Verifying we have the necessary tools"
 [ -f '/usr/bin/unsquashfs' ] || die "find /usr/bin/unsquashfs"
 [ -f '/usr/bin/curl' ] || die "find /usr/bin/curl"
-[ -f '/usr/bin/jshon' ] || die "find /usr/bin/jshon"
 
-msg "Selecting mirror"
-mirror="$(jshon -F <(curl -s 'https://www.archlinux.org/mirrors/status/json/') -e urls -a -e url -u|grep http|shuf|head -n 1)"
-msg "selected $mirror"
+msg "Enter mirror to use: "
+read mirror
+msg "using mirror $mirror"
 
 date=2016.02.01
 iso=archlinux-"$date"-dual.iso
