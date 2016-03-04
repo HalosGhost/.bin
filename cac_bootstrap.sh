@@ -11,7 +11,7 @@ msg "Enter mirror to use: "
 read mirror
 msg "using mirror $mirror"
 
-date=2016.02.01
+date="$(date -u +'%Y.%m.01')"
 iso=archlinux-"$date"-dual.iso
 arch=x86_64
 
