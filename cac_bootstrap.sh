@@ -54,8 +54,9 @@ done; rm -r -- squashfs-root || die "clean up squashfs-root dir"
 msg "Creating location for old_root"
 mkdir -p new_root/old_root || die "create old_root"
 
-msg "Copying ethernet config"
-cp /mnt2/ifcfgeth new_root/opt/ || die "copy ethernet config to /opt"
+msg "Copying ethernet info"
+ip a >> new_root/opt/ifcfgeth || die "output Addr config to /opt"
+ip r >> new_root/opt/ifcfgeth || die "output Route config to /opt"
 
 msg "Making old_root rprivate"
 mount --make-rprivate / || die "make old_root rprivate"
