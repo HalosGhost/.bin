@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+xinput set-prop 'TPPS/2 IBM TrackPoint' "$@"
