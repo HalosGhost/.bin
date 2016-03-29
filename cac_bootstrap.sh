@@ -55,6 +55,10 @@ msg "Copying ethernet info"
 ip a >> new_root/root/ifcfgeth || die "output Addr config to /root"
 ip r >> new_root/root/ifcfgeth || die "output Route config to /root"
 
+msg 'Grabbing package list'
+curl 'https://raw.githubusercontent.com/HalosGhost/.bin/master/cac_package_list' \
+    -s#o new_root/root/pkglist || die 'fetch package list'
+
 msg "Making old_root rprivate"
 mount --make-rprivate / || die "make old_root rprivate"
 
