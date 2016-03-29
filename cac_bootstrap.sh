@@ -16,7 +16,7 @@ iso=archlinux-"$date"-dual.iso
 arch=x86_64
 
 msg "Downloading ISO from $mirror"
-curl -#O "$mirror/iso/$date/$iso" || die "download iso"
+curl -C - -#O "$mirror/iso/$date/$iso" || die "download iso"
 
 msg "Mounting ISO to /mnt"
 mount -o loop "$iso" /mnt || die "mount iso"
@@ -29,9 +29,6 @@ md5sum -c airootfs.md5 || die "verify squashfs"
 
 msg "Unmounting ISO"
 umount /mnt || die "unmount iso"
-
-msg "Deleting ISO"
-rm -- "$iso" || die "delete ISO"
 
 msg "Extracting Squashfs"
 unsquashfs airootfs.sfs || die "extract squashfs"
@@ -55,8 +52,8 @@ msg "Creating location for old_root"
 mkdir -p new_root/old_root || die "create old_root"
 
 msg "Copying ethernet info"
-ip a >> new_root/opt/ifcfgeth || die "output Addr config to /opt"
-ip r >> new_root/opt/ifcfgeth || die "output Route config to /opt"
+ip a >> new_root/root/ifcfgeth || die "output Addr config to /root"
+ip r >> new_root/root/ifcfgeth || die "output Route config to /root"
 
 msg "Making old_root rprivate"
 mount --make-rprivate / || die "make old_root rprivate"
