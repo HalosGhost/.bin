@@ -11,3 +11,6 @@ rm -rf /old_root || die 'clean up old_root'
 
 msg 'Killing LVM'
 vgremove -ff centos || die 'kill LVM'
+
+msg 'Wiping partitions'
+dd if=/dev/zero of=/dev/sda || die 'wipe /dev/sda'
