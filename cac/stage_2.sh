@@ -13,4 +13,4 @@ msg 'Killing LVM'
 vgremove -ff centos || die 'kill LVM'
 
 msg 'Wiping partitions'
-dd if=/dev/zero of=/dev/sda || die 'wipe /dev/sda'
+dd bs=512 count=1 if=/dev/zero of=/dev/sda || die 'wipe /dev/sda'
