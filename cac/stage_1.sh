@@ -85,8 +85,8 @@ msg "Turning swapoff"
 swapoff -a || die "turn swap off"
 
 msg "Press enter to kill pids"
-msg "Note: you will need to remove the lvm partitions and umount old_root"
-msg "before you can continue with the standard Arch install"
+msg "Note: run ./stage_2.sh to finish the intial setup"
+msg "before continuing with the standard Arch install"
 read
 
 msg "Killing pids holding old_root"
