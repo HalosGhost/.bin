@@ -13,7 +13,7 @@ msg 'Killing LVM'
 vgremove -ff centos || die 'kill LVM'
 
 msg 'Wiping partitions'
-dd bs=512 count=1 if=/dev/zero of=/dev/sda || die 'wipe /dev/sda'
+dd bs=1M if=/dev/zero of=/dev/sda || die 'wipe /dev/sda'
 
 def_package_list=(
    'bash' 'bzip2' 'coreutils' 'device-mapper' 'diffutils' 'e2fsprogs' 'file'
@@ -24,3 +24,12 @@ def_package_list=(
    'which' 'sudo' 'nftables' 'vim' 'syslinux' 'linux-grsec' 'paxd' 'gradm' 'zsh'
    'zsh-syntax-highlighting' 'openssh'
 )
+
+if [[ "$2" == '--halosghost-unofficial-install' ]]; then
+    msg 'By continuing, you are not installing Arch, and your install is'
+    msg 'not officially supported. You have been warned. Enter YES if you'
+    msg 'wish to continue;'
+
+    read
+    [[ "$REPLY" != 'YES' ]] && exit 1
+fi
