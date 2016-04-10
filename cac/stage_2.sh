@@ -25,6 +25,15 @@ def_package_list=(
    'zsh-syntax-highlighting' 'openssh'
 )
 
+read -r -d '' partition_scheme << 'EOF'
+label: dos
+label-id: 0x350346e6
+device: /dev/sda
+unit: sectors
+
+/dev/sda1 : start=      2048, size=     20969472, type=83, bootable
+EOF
+
 if [[ "$2" == '--halosghost-unofficial-install' ]]; then
     msg 'By continuing, you are not installing Arch, and your install is'
     msg 'not officially supported. You have been warned. Enter YES if you'
@@ -40,4 +49,7 @@ if [[ "$2" == '--halosghost-unofficial-install' ]]; then
     systemctl start haveged || msg 'start haveged'
     pacman-key --init || msg 'initialize the keyring'
     pacman-key --populate archlinux || msg 'populate the keyring'
+
+    msg 'Partitioning disk'
+    sfdisk /dev/sda <<< "$partition_scheme" || die 'partition disk'
 fi
