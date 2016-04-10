@@ -15,15 +15,22 @@ vgremove -ff centos || die 'kill LVM'
 msg 'Wiping partitions'
 dd bs=4M iflag=nocache oflag=direct if=/dev/zero of=/dev/sda
 
-def_package_list=(
-   'bash' 'bzip2' 'coreutils' 'device-mapper' 'diffutils' 'e2fsprogs' 'file'
-   'filesystem' 'findutils' 'gawk' 'gcc-libs' 'gettext' 'glibc' 'grep' 'gzip'
-   'inetutils' 'iproute2' 'iputils' 'less' 'licenses' 'logrotate' 'man-db'
-   'man-pages' 'pacman' 'pciutils' 'perl' 'procps-ng' 'psmisc' 'sed' 'shadow'
-   'sysfsutils' 'systemd-sysvcompat' 'tar' 'texinfo' 'usbutils' 'util-linux'
-   'which' 'sudo' 'nftables' 'vim' 'syslinux' 'linux-grsec' 'paxd' 'gradm' 'zsh'
-   'zsh-syntax-highlighting' 'openssh'
-)
+[[ "$2" != '--halosghost-unofficial-install' ]] && exit 0;
+
+msg 'By continuing, you are not installing Arch, and your install is'
+msg 'not officially supported. You have been warned. Enter YES if you'
+msg 'wish to continue;'
+
+read
+[[ "$REPLY" != 'YES' ]] && exit 1
+
+msg 'Setting DNS to use google'
+echo 'nameserver 8.8.8.8' > /etc/resolv.conf || die 'set DNS'
+
+msg 'Initializing the pacman keyring'
+systemctl start haveged || msg 'start haveged'
+pacman-key --init || msg 'initialize the keyring'
+pacman-key --populate archlinux || msg 'populate the keyring'
 
 read -r -d '' partition_scheme << 'EOF'
 label: dos
@@ -34,25 +41,18 @@ unit: sectors
 /dev/sda1 : start=      2048, size=     20969472, type=83, bootable
 EOF
 
-if [[ "$2" == '--halosghost-unofficial-install' ]]; then
-    msg 'By continuing, you are not installing Arch, and your install is'
-    msg 'not officially supported. You have been warned. Enter YES if you'
-    msg 'wish to continue;'
+msg 'Partitioning disk'
+sfdisk /dev/sda <<< "$partition_scheme" || die 'partition disk'
 
-    read
-    [[ "$REPLY" != 'YES' ]] && exit 1
+def_package_list=(
+   'bash' 'bzip2' 'coreutils' 'device-mapper' 'diffutils' 'e2fsprogs' 'file'
+   'filesystem' 'findutils' 'gawk' 'gcc-libs' 'gettext' 'glibc' 'grep' 'gzip'
+   'inetutils' 'iproute2' 'iputils' 'less' 'licenses' 'logrotate' 'man-db'
+   'man-pages' 'pacman' 'pciutils' 'perl' 'procps-ng' 'psmisc' 'sed' 'shadow'
+   'sysfsutils' 'systemd-sysvcompat' 'tar' 'texinfo' 'usbutils' 'util-linux'
+   'which' 'sudo' 'nftables' 'vim' 'syslinux' 'linux-grsec' 'paxd' 'gradm' 'zsh'
+   'zsh-syntax-highlighting' 'openssh'
+)
 
-    msg 'Setting DNS to use google'
-    echo 'nameserver 8.8.8.8' > /etc/resolv.conf || die 'set DNS'
-
-    msg 'Initializing the pacman keyring'
-    systemctl start haveged || msg 'start haveged'
-    pacman-key --init || msg 'initialize the keyring'
-    pacman-key --populate archlinux || msg 'populate the keyring'
-
-    msg 'Partitioning disk'
-    sfdisk /dev/sda <<< "$partition_scheme" || die 'partition disk'
-
-    msg 'Pacstrapping'
-    pacstrap /mnt "${def_package_list[@]}" || die 'pacstrap'
-fi
+msg 'Pacstrapping'
+pacstrap /mnt "${def_package_list[@]}" || die 'pacstrap'
