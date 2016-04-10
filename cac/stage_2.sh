@@ -52,4 +52,7 @@ if [[ "$2" == '--halosghost-unofficial-install' ]]; then
 
     msg 'Partitioning disk'
     sfdisk /dev/sda <<< "$partition_scheme" || die 'partition disk'
+
+    msg 'Pacstrapping'
+    pacstrap /mnt "${def_package_list[@]}" || die 'pacstrap'
 fi
