@@ -13,7 +13,7 @@ msg 'Killing LVM'
 vgremove -ff centos || die 'kill LVM'
 
 msg 'Wiping partitions'
-dd bs=1M if=/dev/zero of=/dev/sda || die 'wipe /dev/sda'
+dd bs=4M iflag=nocache oflag=direct if=/dev/zero of=/dev/sda
 
 def_package_list=(
    'bash' 'bzip2' 'coreutils' 'device-mapper' 'diffutils' 'e2fsprogs' 'file'
@@ -32,4 +32,12 @@ if [[ "$2" == '--halosghost-unofficial-install' ]]; then
 
     read
     [[ "$REPLY" != 'YES' ]] && exit 1
+
+    msg 'Setting DNS to use google'
+    echo 'nameserver 8.8.8.8' > /etc/resolv.conf || die 'set DNS'
+
+    msg 'Initializing the pacman keyring'
+    systemctl start haveged || msg 'start haveged'
+    pacman-key --init || msg 'initialize the keyring'
+    pacman-key --populate archlinux || msg 'populate the keyring'
 fi
