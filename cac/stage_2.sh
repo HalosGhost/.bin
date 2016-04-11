@@ -12,9 +12,6 @@ rm -rf /old_root || die 'clean up old_root'
 msg 'Killing LVM'
 vgremove -ff centos || die 'kill LVM'
 
-msg 'Wiping partitions'
-dd bs=4M iflag=nocache oflag=direct if=/dev/zero of=/dev/sda
-
 [[ "$2" != '--halosghost-unofficial-install' ]] && exit 0;
 
 msg 'By continuing, you are not installing Arch, and your install is'
