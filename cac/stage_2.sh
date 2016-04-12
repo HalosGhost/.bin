@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-die () { printf "failed to $1\n"; exit 1; }
 msg () { printf "$1\n"; }
+die () { msg "failed to $1"; exit 1; }
 
 msg 'Unmounting old_root'
 umount -R /old_root || die 'unmount old_root'
