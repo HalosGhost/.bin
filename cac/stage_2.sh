@@ -41,6 +41,12 @@ EOF
 msg 'Partitioning disk'
 sfdisk /dev/sda <<< "$partition_scheme" || die 'partition disk'
 
+msg 'Formatting disk'
+mkfs.ext4 -F /dev/sda1 || die 'format disk'
+
+msg 'Mounting disk'
+mount /dev/sda1 /mnt || die 'mount disk'
+
 def_package_list=(
    'bash' 'bzip2' 'coreutils' 'device-mapper' 'diffutils' 'e2fsprogs' 'file'
    'filesystem' 'findutils' 'gawk' 'gcc-libs' 'gettext' 'glibc' 'grep' 'gzip'
