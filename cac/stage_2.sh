@@ -12,7 +12,7 @@ rm -rf /old_root || die 'clean up old_root'
 msg 'Killing LVM'
 vgremove -ff centos || die 'kill LVM'
 
-[[ "$2" != '--halosghost-unofficial-install' ]] && exit 0;
+[[ "$1" != '--halosghost-unofficial-install' ]] && exit 0;
 
 msg 'By continuing, you are not installing Arch, and your install is'
 msg 'not officially supported. You have been warned. Enter YES if you'
