@@ -35,7 +35,7 @@ label-id: 0x350346e6
 device: /dev/sda
 unit: sectors
 
-/dev/sda1 : start=      2048, size=     20969472, type=83, bootable
+/dev/sda1 : start=      2048, size=     +10G, type=83, bootable
 EOF
 
 msg 'Partitioning disk'
