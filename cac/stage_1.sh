@@ -4,8 +4,8 @@ die () { printf "failed to $1\n"; exit 1; }
 msg () { printf "$1\n"; }
 
 msg "Verifying we have the necessary tools"
-[ "$(which unsquashfs)" != "unsquashfs not found" ] || die "find unsquashfs"
-[ -f '/usr/bin/curl' ] || die "find /usr/bin/curl"
+which curl || die 'find curl'
+which unsquashfs || die 'find unsquashfs'
 
 msg "Enter mirror to use: "
 read mirror
