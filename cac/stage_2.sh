@@ -59,3 +59,11 @@ def_package_list=(
 
 msg 'Pacstrapping'
 pacstrap /mnt "${def_package_list[@]}" || die 'pacstrap'
+
+msg 'Generating fstab'
+genfstab -U /mnt >> /mnt/etc/fstab || die 'generate an fstab'
+
+msg 'Generating Network Configuration'
+printf '[Match]\nName=ens33\n\n%s\n\n%s\n' \
+    "$(ip a show dev ens33 | awk '/inet / { print "[Address]\nAddress=" $2 "\nBroadcast=" $4 }')" \
+    "$(ip r show dev ens33 | awk 'NR == 1 { print "[Route]\nGateway=" $3 }')" > /mnt/etc/systemd/network/wired.network
