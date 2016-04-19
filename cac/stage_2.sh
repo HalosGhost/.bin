@@ -64,6 +64,6 @@ msg 'Generating fstab'
 genfstab -U /mnt >> /mnt/etc/fstab || die 'generate an fstab'
 
 msg 'Generating Network Configuration'
-printf '[Match]\nName=ens33\n\n%s\n\n%s\n' \
-    "$(ip a show dev ens33 | awk '/inet / { print "[Address]\nAddress=" $2 "\nBroadcast=" $4 }')" \
-    "$(ip r show dev ens33 | awk 'NR == 1 { print "[Route]\nGateway=" $3 }')" > /mnt/etc/systemd/network/wired.network
+printf '[Match]\nName=ens33\n\n[Address]\n%s\n\n[Route]\n%s\n' \
+    "$(ip a show dev ens33 | awk '/inet / { print "Address=" $2 "\nBroadcast=" $4 }')" \
+    "$(ip r show dev ens33 | awk 'NR == 1 { print "Gateway=" $3 }')" > /mnt/etc/systemd/network/wired.network
