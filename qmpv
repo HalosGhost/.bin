@@ -1,4 +1,6 @@
-if [ -f "/usr/bin/optirun" ]; then
+#!/usr/bin/env bash
+
+if [[ -f "/usr/bin/optirun" ]]; then
     optirun mpv --msg-level=all=error:statusline=status "$@"
 else
     mpv --msg-level=all=error:statusline=status "$@"
