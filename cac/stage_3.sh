@@ -13,6 +13,7 @@ bootconf='/boot/syslinux/syslinux.cfg'
 msg 'Setting up Syslinux'
 sed -e 's/sda3/sda1/g' -i "$bootconf" || die 'set root to sda1'
 sed -e 's/vmlinuz-linux/&-grsec/g' -i "$bootconf" || die 'use grsec kernel'
+sed -e 's/linux-initramfs/&-grsec/g' -i "$bootconf" || die 'use grsec initrd'
 syslinux-install_update -iam || die 'install syslinux to MBR'
 
 msg 'Setting up network'
