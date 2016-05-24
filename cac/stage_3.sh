@@ -8,7 +8,7 @@ echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen || die 'specify locale'
 locale-gen || die 'generate locale'
 echo 'LANG=en_US.UTF-8' > /etc/locale.conf || die 'set $LANG'
 
-bootconf='/boot/syslinux/syslinux.conf'
+bootconf='/boot/syslinux/syslinux.cfg'
 
 msg 'Setting up Syslinux'
 sed -e 's/sda3/sda1/g' -i "$bootconf" || die 'set root to sda1'
