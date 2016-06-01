@@ -67,3 +67,13 @@ msg 'Generating Network Configuration'
 printf '[Match]\nName=ens33\n\n[Address]\n%s\n\n[Route]\n%s\n' \
     "$(ip a show dev ens33 | awk '/inet / { print "Address=" $2 "\nBroadcast=" $4 }')" \
     "$(ip r show dev ens33 | awk 'NR == 1 { print "Gateway=" $3 }')" > /mnt/etc/systemd/network/wired.network
+
+msg 'Grabbing third stage script'
+curl 'https://raw.githubusercontent.com/HalosGhost/.bin/master/cac/stage_3.sh' \
+    -s#o /mnt/root/stage_3.sh || die 'fetch third stage script'
+
+msg 'Changing permissions of third stage script'
+chmod 0755 /mnt/root/stage_3.sh || die 'change third stage script permissions'
+
+msg 'Chrooting and running third stage'
+arch-chroot /mnt /root/stage_3.sh || die 'run third stage'
