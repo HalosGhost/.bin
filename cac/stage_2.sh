@@ -76,4 +76,4 @@ msg 'Changing permissions of third stage script'
 chmod 0755 /mnt/root/stage_3.sh || die 'change third stage script permissions'
 
 msg 'Chrooting and running third stage'
-arch-chroot /mnt /root/stage_3.sh || die 'run third stage'
+arch-chroot /mnt /root/stage_3.sh "$2" || die 'run third stage'
