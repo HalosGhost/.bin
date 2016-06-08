@@ -54,7 +54,7 @@ def_package_list=(
    'man-pages' 'pacman' 'pciutils' 'perl' 'procps-ng' 'psmisc' 'sed' 'shadow'
    'sysfsutils' 'systemd-sysvcompat' 'tar' 'texinfo' 'usbutils' 'util-linux'
    'which' 'sudo' 'nftables' 'vim' 'syslinux' 'linux-grsec' 'paxd' 'gradm' 'zsh'
-   'zsh-syntax-highlighting' 'openssh'
+   'zsh-syntax-highlighting' 'openssh' 'archlinux-keyring'
 )
 
 msg 'Pacstrapping'
