@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
-die () { printf "failed to $1\n"; exit 1; }
-msg () { printf "$1\n"; }
+die () { printf "failed to %s\n" "$1"; exit 1; }
+msg () { printf "%s\n" "$1"; }
 
 msg "Verifying we have the necessary tools"
-which curl || die 'find curl'
-which unsquashfs || die 'find unsquashfs'
+hash curl || die 'find curl'
+hash unsquashfs || die 'find unsquashfs'
 
 msg "Enter mirror to use: "
-read mirror
+read -r -p 'Enter mirror to use: ' mirror
 msg "using mirror $mirror"
 
 date="$(date -u +'%Y.%m.01')"
@@ -16,7 +16,7 @@ iso=archlinux-"$date"-dual.iso
 arch=x86_64
 
 msg "Downloading ISO from $mirror"
-curl -C - -#O "$mirror/iso/$date/$iso" || die "download iso"
+curl -Cf - -#O "$mirror/iso/$date/$iso" || die "download iso"
 
 msg "Mounting ISO to /mnt"
 mount -o loop "$iso" /mnt || die "mount iso"
@@ -34,7 +34,7 @@ msg "Extracting Squashfs"
 unsquashfs airootfs.sfs || die "extract squashfs"
 
 msg "\nCleaning old airootfs files"
-rm -- airootfs.* || die "clean up old airootfs files"
+rm -v -- airootfs.* || die "clean up old airootfs files"
 
 msg "Making new_root target"
 mkdir -p new_root || die "create new_root target"
@@ -45,8 +45,8 @@ mount -o size="$nbytes" -t tmpfs none ./new_root || die "create tmpfs"
 
 msg "Moving live files to new_root"
 for i in squashfs-root/*; do
-    cp -r "$i" ./new_root/ || die "move $i to new_root"
-done; rm -r -- squashfs-root || die "clean up squashfs-root dir"
+    cp -rv "$i" ./new_root/ || die "move $i to new_root"
+done; rm -rv -- squashfs-root || die "clean up squashfs-root dir"
 
 msg "Creating location for old_root"
 mkdir -p new_root/old_root || die "create old_root"
@@ -57,7 +57,7 @@ ip r >> new_root/root/ifcfgeth || die "output Route config to /root"
 
 msg 'Grabbing second stage script'
 curl 'https://raw.githubusercontent.com/HalosGhost/.bin/master/cac/stage_2.sh' \
-    -s#o new_root/root/stage_2.sh || die 'fetch second stage script'
+    -s#o -f new_root/root/stage_2.sh || die 'fetch second stage script'
 
 msg 'Changing permissions of second stage script'
 chmod 0755 new_root/root/stage_2.sh || die 'change second stage script permissions'
