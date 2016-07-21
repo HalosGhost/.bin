@@ -3,7 +3,7 @@
 msg () { printf '%s\n' "$1"; }
 
 # This should only be used for scripts simple or no control flow
-trap_err() { ret=$?; printf '%s\n' "$BASH_SOURCE:$LINENO: $BASH_COMMAND ($ret)"; exit $ret; }
+trap_err() { ret=$?; printf '%s\n' "${BASH_SOURCE[0]}:$LINENO: $BASH_COMMAND ($ret)"; exit $ret; }
 trap 'trap_err' ERR
 
 msg "Verifying we have the necessary tools"
@@ -89,7 +89,7 @@ swapoff -a
 msg "Press enter to kill pids"
 msg "Note: run ./stage_2.sh to finish the intial setup"
 msg "before continuing with the standard Arch install"
-read
+read -r
 
 msg "Killing pids holding old_root"
 fuser -k -m /old_root
