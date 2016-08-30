@@ -4,7 +4,10 @@ export QEMU_AUDIO_DRV=pa
 
 run_vm () {
     (cd "$HOME/prj/ani/vms/$1/$2"
-    qemu-system-x86_64 -m 4G -drive file=./disk.img,index=0,media=disk,format=raw -enable-kvm -cpu host -soundhw hda)
+    qemu-system-x86_64 -m 4G \
+        -drive file=./disk.img,index=0,media=disk,format=raw \
+        -enable-kvm -cpu host -soundhw hda \
+        -net nic -net user,smb=/home/halosghost/prj/ani/vms/shared)
 }
 
 case "$1" in
