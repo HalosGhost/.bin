@@ -72,7 +72,7 @@ printf '[Match]\nName=ens33\n\n[Address]\n%s\n\n[Route]\n%s\n' \
 
 msg 'Grabbing third stage script'
 curl 'https://raw.githubusercontent.com/HalosGhost/.bin/master/cac/stage_3.sh' \
-    -s#o -f /mnt/root/stage_3.sh
+    -fs#o /mnt/root/stage_3.sh
 
 msg 'Changing permissions of third stage script'
 chmod -c 0755 /mnt/root/stage_3.sh
