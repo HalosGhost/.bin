@@ -1,4 +1,7 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
+[[ ! -f "$1" ]] && echo "No such file" && exit 1
+
+IFS="" # treat argument with spaces as a single argument
 [[ -z $((xprop -id $(</tmp/zathura.xid)) 2>/dev/null) ]] && tabbed -f -p s+1 -n "docs" -d > /tmp/zathura.xid
 exec zathura -e $(</tmp/zathura.xid) $( [[  "$1"  ]] && echo "$1") &
