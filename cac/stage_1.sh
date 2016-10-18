@@ -18,7 +18,7 @@ iso=archlinux-"$date"-dual.iso
 arch=x86_64
 
 msg "Downloading ISO from $mirror"
-curl -Cf - -#O "$mirror/iso/$date/$iso"
+curl -fC - -#O "$mirror/iso/$date/$iso"
 
 msg "Mounting ISO to /mnt"
 mount -o loop "$iso" /mnt
