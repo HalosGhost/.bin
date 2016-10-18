@@ -59,7 +59,7 @@ ip r >> new_root/root/ifcfgeth
 
 msg 'Grabbing second stage script'
 curl 'https://raw.githubusercontent.com/HalosGhost/.bin/master/cac/stage_2.sh' \
-    -s#o -f new_root/root/stage_2.sh
+    -fs#o new_root/root/stage_2.sh
 
 msg 'Changing permissions of second stage script'
 chmod 0755 new_root/root/stage_2.sh
