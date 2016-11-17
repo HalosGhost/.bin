@@ -1,9 +1,3 @@
 #!/usr/bin/env bash
 
-url="http://nycurl.sytes.net/"
-
-if [[ "$1" != "" ]]; then
-    url+="$1"
-fi
-
-curl "$url"
+curl "http://nycurl.sytes.net/${1,,}"
