@@ -4,10 +4,7 @@ FIFO="/tmp/dvtm-status.$$"
 
 [ -p "$FIFO" ] || mkfifo -m 600 "$FIFO" || exit 1
 
-while true; do
-    /home/halosghost/projects/lang/hs/dstat/dstat -e enp0s25 -w wlp3s0 -s -1
-    sleep 6
-done > "$FIFO" &
+dstat -s > "$FIFO" &
 
 STATUS_PID=$!
 dvtm -s "$FIFO" "$@" 2> /dev/null
