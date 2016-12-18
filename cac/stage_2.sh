@@ -1,35 +1,40 @@
 #!/usr/bin/env bash
 
-msg () { printf "$1\n"; }
-die () { msg "failed to $1"; exit 1; }
+msg () { printf "%s\n" "$1"; }
+
+# This should only be used for scripts with simple or no control flow
+trap_err() { ret=$?; printf '%s\n' "${BASH_SOURCE[0]}:$LINENO: $BASH_COMMAND ($ret)"; exit $ret; }
+trap 'trap_err' ERR
 
 msg 'Unmounting old_root'
-umount -R /old_root || die 'unmount old_root'
+umount -R /old_root
 
 msg 'Cleaning up old_root'
-rm -rf /old_root || die 'clean up old_root'
+rm -rf /old_root
 
 msg 'Killing LVM'
-vgremove -ff centos || die 'kill LVM'
+vgremove -ff centos
 
 [[ "$1" != '--halosghost-unofficial-install' ]] && exit 0;
+[[ -z "$2" ]] && exit 1;
 
 msg 'By continuing, you are not installing Arch, and your install is'
 msg 'not officially supported. You have been warned. Enter YES if you'
 msg 'wish to continue;'
 
-read
+read -r
 [[ "$REPLY" != 'YES' ]] && exit 1
 
 msg 'Setting DNS to use google'
-echo 'nameserver 8.8.8.8' > /etc/resolv.conf || die 'set DNS'
+echo 'nameserver 8.8.8.8' > /etc/resolv.conf
 
 msg 'Initializing the pacman keyring'
-systemctl start haveged || msg 'start haveged'
-pacman-key --init || msg 'initialize the keyring'
-pacman-key --populate archlinux || msg 'populate the keyring'
+systemctl start haveged
+pacman-key --init
+pacman-key --populate archlinux
 
-read -r -d '' partition_scheme << 'EOF'
+msg 'Partitioning disk'
+sfdisk /dev/sda <<'EOF'
 label: dos
 label-id: 0x350346e6
 device: /dev/sda
@@ -38,14 +43,11 @@ unit: sectors
 /dev/sda1 : start=      2048, size=     +10G, type=83, bootable
 EOF
 
-msg 'Partitioning disk'
-sfdisk /dev/sda <<< "$partition_scheme" || die 'partition disk'
-
 msg 'Formatting disk'
-mkfs.ext4 -F /dev/sda1 || die 'format disk'
+mkfs.ext4 -F /dev/sda1
 
 msg 'Mounting disk'
-mount /dev/sda1 /mnt || die 'mount disk'
+mount /dev/sda1 /mnt
 
 def_package_list=(
    'bash' 'bzip2' 'coreutils' 'device-mapper' 'diffutils' 'e2fsprogs' 'file'
@@ -58,10 +60,10 @@ def_package_list=(
 )
 
 msg 'Pacstrapping'
-pacstrap /mnt "${def_package_list[@]}" || die 'pacstrap'
+pacstrap /mnt "${def_package_list[@]}"
 
 msg 'Generating fstab'
-genfstab -U /mnt >> /mnt/etc/fstab || die 'generate an fstab'
+genfstab -U /mnt >> /mnt/etc/fstab
 
 msg 'Generating Network Configuration'
 printf '[Match]\nName=ens33\n\n[Address]\n%s\n\n[Route]\n%s\n' \
@@ -70,10 +72,10 @@ printf '[Match]\nName=ens33\n\n[Address]\n%s\n\n[Route]\n%s\n' \
 
 msg 'Grabbing third stage script'
 curl 'https://raw.githubusercontent.com/HalosGhost/.bin/master/cac/stage_3.sh' \
-    -s#o /mnt/root/stage_3.sh || die 'fetch third stage script'
+    -fs#o /mnt/root/stage_3.sh
 
 msg 'Changing permissions of third stage script'
-chmod 0755 /mnt/root/stage_3.sh || die 'change third stage script permissions'
+chmod -c 0755 /mnt/root/stage_3.sh
 
 msg 'Chrooting and running third stage'
-arch-chroot /mnt /root/stage_3.sh "$2" || die 'run third stage'
+arch-chroot /mnt /root/stage_3.sh "$2"
