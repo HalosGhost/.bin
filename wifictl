@@ -4,7 +4,7 @@
 [[ -z "$WPA_SUPFILE" ]] && WPA_SUPFILE="/etc/wpa_supplicant/wpa_supplicant-$IFACE.conf"
 
 case "$1" in
-    add)    sudo tee <(wpa_passphrase "$2" "$3") > "${4:-$WPA_SUPFILE}";;
+    add)    wpa_passphrase "$2" "$3" | sudo tee -a "${4:-$WPA_SUPFILE}" > /dev/null;;
     scan)   sudo iw dev "${2:-$IFACE}" scan | awk "/SSID: $3/";;
     reload) sudo killall -HUP wpa_supplicant;;
 esac
