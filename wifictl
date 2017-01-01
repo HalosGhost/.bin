@@ -6,5 +6,8 @@
 case "$1" in
     add)    wpa_passphrase "$2" "$3" | sudo tee -a "${4:-$WPA_SUPFILE}" > /dev/null;;
     scan)   sudo iw dev "${2:-$IFACE}" scan | awk "/SSID: $3/";;
+    stat)   perc=$(tail -n1 /proc/net/wireless | awk "/${2:-$IFACE}:/ { print int((\$3 / 70) * 100) }")
+            netw=$(iw dev "${2:-$IFACE}" link | awk '/SSID:/ { print substr($0, index($0, $2)) }')
+            printf '%s (%d%%)\n' "$netw" "$perc";;
     reload) sudo killall -HUP wpa_supplicant;;
 esac
