@@ -10,4 +10,5 @@ case "$1" in
             netw=$(iw dev "${2:-$IFACE}" link | awk '/SSID:/ { print substr($0, index($0, $2)) }')
             printf '%s (%d%%)\n' "$netw" "$perc";;
     reload) sudo killall -HUP wpa_supplicant;;
+    *)      printf 'Valid commands: add, scan, stat, reload\n'
 esac
