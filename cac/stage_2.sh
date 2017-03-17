@@ -25,8 +25,8 @@ msg 'wish to continue;'
 read -r
 [[ "$REPLY" != 'YES' ]] && exit 1
 
-msg 'Setting DNS to use google'
-echo 'nameserver 8.8.8.8' > /etc/resolv.conf
+msg 'Setting DNS to use openNIC'
+echo 'nameserver 52.175.214.157' > /etc/resolv.conf
 
 msg 'Initializing the pacman keyring'
 systemctl start haveged
