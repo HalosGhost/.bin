@@ -34,20 +34,19 @@ pacman-key --init
 pacman-key --populate archlinux
 
 msg 'Partitioning disk'
-sfdisk /dev/sda <<'EOF'
-label: dos
-label-id: 0x350346e6
-device: /dev/sda
-unit: sectors
+cfdisk /dev/sda
 
-/dev/sda1 : start=      2048, size=     +10G, type=83, bootable
-EOF
-
-msg 'Formatting disk'
+msg 'Formatting root'
 mkfs.ext4 -F /dev/sda1
 
-msg 'Mounting disk'
+msg 'Formatting boot'
+mkfs.ext4 -O^64bit -F /dev/sda2
+
+msg 'Mounting root'
 mount /dev/sda1 /mnt
+
+msg 'Mounting boot'
+mount /dev/sda2 /mnt
 
 def_package_list=(
    'bash' 'bzip2' 'coreutils' 'device-mapper' 'diffutils' 'e2fsprogs' 'file'
