@@ -9,7 +9,6 @@ trap 'trap_err' ERR
 msg "Verifying we have the necessary tools"
 hash curl unsquashfs
 
-msg "Enter mirror to use: "
 read -r -p 'Enter mirror to use: ' mirror
 msg "using mirror $mirror"
 
