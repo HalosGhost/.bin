@@ -45,8 +45,11 @@ mkfs.ext4 -O^64bit -F /dev/sda2
 msg 'Mounting root'
 mount /dev/sda1 /mnt
 
+msg 'Create boot mountpoint'
+mkdir -p /mnt/boot
+
 msg 'Mounting boot'
-mount /dev/sda2 /mnt
+mount /dev/sda2 /mnt/boot
 
 def_package_list=(
    'bash' 'bzip2' 'coreutils' 'device-mapper' 'diffutils' 'e2fsprogs' 'file'
