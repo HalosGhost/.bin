@@ -19,7 +19,8 @@ msg 'Setting up network'
 systemctl enable systemd-networkd || die 'enable networkd'
 systemctl enable systemd-resolved || die 'enable resolved'
 
-ipaddr="$(ip a show dev ens33 | awk '/inet/ { print $2 }')"
+ip4addr="$(ip a show dev ens33 | awk '/inet.8\./ { print $2 }')"
+ip6addr="$(ip a show dev ens33 | awk '/inet.8:/ { print $2 }')"
 read -r -d '' hosts_file << EOF
 #
 # /etc/hosts: static lookup table for host names
@@ -28,7 +29,8 @@ read -r -d '' hosts_file << EOF
 #<ip-address>   <hostname.domain.org>   <hostname>
 127.0.0.1       localhost.localdomain   localhost
 ::1             localhost.localdomain   localhost
-$ipaddr         $1.halosgho.st          $1
+$ip4addr        $1.halosgho.st          $1
+$ip6addr        $1.halosgho.st          $1
 
 # End of file
 EOF
