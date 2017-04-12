@@ -13,8 +13,8 @@ read -r -p 'Enter mirror to use: ' mirror
 msg "using mirror $mirror"
 
 date="$(date -u +'%Y.%m.01')"
-iso=archlinux-"$date"-dual.iso
 arch=x86_64
+iso=archlinux-"$date"-"$arch".iso
 
 msg "Downloading ISO from $mirror"
 curl -fC - -#O "$mirror/iso/$date/$iso"
