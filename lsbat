@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+
+BAT="${BAT:=BAT0}"
+
+# a bunch of this was lifted almost directly from acpiclient
+# https://sourceforge.net/p/acpiclient/code/ci/master/tree/acpi.c
+# this is licensed under the GPL
+
+read_stat() {
+    file=/sys/class/power_supply/"$BAT"/"$1"
+    [[ -e "$file" ]] && cat "$file" || echo 0
+}
+
+rate=$(read_stat power_now)
+if [[ "$rate" == 0 ]]; then
+    rate=$(read_stat current_now)
+fi
+rate=$(( "$rate" / 1000 ))
+
+voltage=$(( "$(read_stat voltage_now)" / 1000 ))
+
+max_capacity=$(( "$(read_stat charge_full)" / 1000 ))
+if [[ "$max_capacity" == 0 ]]; then
+    max_capacity_unit=$(read_stat energy_full)
+    max_capacity=$(( "$max_capacity_unit" / "$voltage" ))
+fi
+
+cur_capacity=$(( "$(read_stat charge_now)" / 1000 ))
+if [[ "$cur_capacity" == 0 ]]; then
+    cur_capacity_unit=$(read_stat energy_now)
+    cur_capacity=$(( "$cur_capacity_unit" / "$voltage" ))
+fi
+
+seconds=0
+power=$(( -"$voltage" * "$rate" / 10000000 ))
+case "$(read_stat status)" in
+    Discharging)
+        seconds=$(( 36000 * "$cur_capacity" / "$rate" ))
+        when=empty
+        ;;
+    Charging)
+        seconds=$(( 36000 * ("$max_capacity" - "$cur_capacity") / "$rate" ))
+        when=full
+        power=$(( -"$power" ))
+        ;;
+esac
+
+hours=0
+minutes=0
+if [[ "$seconds" != 0 ]]; then
+    hours=$(( "$seconds" / 3600 ))
+    seconds=$(( "$seconds" - "$hours" * 3600 ))
+    minutes=$(( "$seconds" / 60 ))
+    seconds=$(( "$seconds" - "$minutes" * 60 ))
+fi
+
+percent=$(read_stat capacity)
+printf '%d%% (%+.2lgW)' "$percent" "$power"
+
+if [[ "$hours" != 0 || "$minutes" != 0 || "$seconds" != 0 ]]; then
+    printf '; %.2d:%.2d:%.2d till %s' "$hours" "$minutes" "$seconds" "$when"
+fi
+
+printf '\n'
