@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [[ -f "/usr/bin/optirun" ]]; then
-    optirun mpv --msg-level=all=error:statusline=status "$@"
+    optirun -b primus --failsafe mpv --msg-level=all=error:statusline=status "$@"
 else
     mpv --msg-level=all=error:statusline=status "$@"
 fi
