@@ -17,6 +17,10 @@ if [[ "$rate" == 0 ]]; then
 fi
 rate=$(( "$rate" / 1000 ))
 
+while [ $(( "$rate" >= 10000 )) -eq 1 ]; do
+    rate=$(( "$rate" / 10 ))
+done
+
 voltage=$(( "$(read_stat voltage_now)" / 1000 ))
 
 max_capacity=$(( "$(read_stat charge_full)" / 1000 ))
@@ -32,14 +36,14 @@ if [[ "$cur_capacity" == 0 ]]; then
 fi
 
 seconds=0
-power=$(( -"$voltage" * "$rate" / 10000000 ))
+power=$(( -"$voltage" * "$rate" / 1000000 ))
 case "$(read_stat status)" in
     Discharging)
-        seconds=$(( 36000 * "$cur_capacity" / "$rate" ))
+        seconds=$(( 3600 * "$cur_capacity" / "$rate" ))
         when=empty
         ;;
     Charging)
-        seconds=$(( 36000 * ("$max_capacity" - "$cur_capacity") / "$rate" ))
+        seconds=$(( 3600 * ("$max_capacity" - "$cur_capacity") / "$rate" ))
         when=full
         power=$(( -"$power" ))
         ;;
