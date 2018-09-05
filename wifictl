@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
 
-[[ -z "$IFACE"       ]] && IFACE=wlp3s0
-[[ -z "$WPA_SUPFILE" ]] && WPA_SUPFILE="/etc/wpa_supplicant/wpa_supplicant-$IFACE.conf"
+WIFI_IFACE="${WIFI_IFACE:-wl0}"
+WPA_SUPFILE="${WPA_SUPFILE:-/etc/wpa_supplicant/wpa_supplicant-$WIFI_IFACE.conf}"
 
 case "$1" in
-    add)    wpa_passphrase "$2" "$3" | sudo tee -a "${4:-$WPA_SUPFILE}" > /dev/null;;
+    add)    wpa_passphrase "$2" "$3" | sudo tee -a "$WPA_SUPFILE" > /dev/null;;
+    open)   printf 'network={\n\tssid="%s"\n\tkey_mgmt=NONE\n}\n' "$2" | sudo tee -a "$WPA_SUPFILE" > /dev/null;;
     list)   sudo wpa_cli list_networks;;
     del)    [[ -z "$2" ]] && sudo wpa_cli remove_network "$2" || printf 'pass a valid network id\n'; sudo wpa_cli save_config;;
-    scan)   sudo iw dev "${2:-$IFACE}" scan | awk "/SSID: ${3:-.+}/ { print substr(\$0, index(\$0, \$2)) }" | sort -u;;
-    stat)   perc=$(tail -n1 /proc/net/wireless | awk "/${2:-$IFACE}:/ { print int((\$3 / 70) * 100) }")
-            netw=$(iw dev "${2:-$IFACE}" link | awk '/SSID:/ { print substr($0, index($0, $2)) }')
+    scan)   sudo iw dev "$WIFI_IFACE" scan | awk "/SSID: .*${2:-.+}.*/ { print substr(\$0, index(\$0, \$2)) }" | sort -u;;
+    stat)   perc=$(tail -n1 /proc/net/wireless | awk "/$WIFI_IFACE:/ { print int((\$3 / 70) * 100) }")
+            netw=$(iw dev "$WIFI_IFACE" link | awk '/SSID:/ { print substr($0, index($0, $2)) }')
             printf '%s (%d%%)\n' "$netw" "$perc";;
     reload) sudo killall -HUP wpa_supplicant;;
-    *)      printf 'Valid commands: add, scan, stat, reload\n'
+    *)      printf 'Valid commands: add, open, list, del, scan, stat, reload\n'
 esac
