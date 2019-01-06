@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-curl "http://nycurl.sytes.net/${1,,}"
