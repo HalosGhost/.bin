@@ -5,9 +5,9 @@ WIFI_IFACE="${WIFI_IFACE:-$(basename $(find /sys/class/net -name 'wl*' | head -n
 WPA_SUPFILE="${WPA_SUPFILE:-/etc/wpa_supplicant/wpa_supplicant-$WIFI_IFACE.conf}"
 
 case "$1" in
-    add)    wpa_passphrase "$2" "$3" | sudo tee -a "${4:-WPA_SUPFILE}" > /dev/null;;
+    add)    wpa_passphrase "$2" "$3" | sudo tee -a "${4:-$WPA_SUPFILE}" > /dev/null;;
     edit)   sudo $EDITOR "${2:-$WPA_SUPFILE}";;
-    open)   printf 'network={\n\tssid="%s"\n\tkey_mgmt=NONE\n}\n' "$2" | sudo tee -a "${3:-WPA_SUPFILE}" > /dev/null;;
+    open)   printf 'network={\n\tssid="%s"\n\tkey_mgmt=NONE\n}\n' "$2" | sudo tee -a "${3:-$WPA_SUPFILE}" > /dev/null;;
     list)   awk -F'"' '/ssid/ { gsub(/".*/,"",$2); print $2}' "${2:-$WPA_SUPFILE}";;
     login)  exec $BROWSER "${2:-example.com}";;
     del)    [[ -z "$2" ]] && sudo wpa_cli remove_network "$2" || printf 'pass a valid network id\n'; sudo wpa_cli save_config;;
