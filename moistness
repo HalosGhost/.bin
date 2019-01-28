@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+mkdir -- scratch
+pushd -- scratch &> /dev/null
+cloc --strip-comments=stripped .. &> /dev/null
+sed 's/^[ \t]*//' -i * &> /dev/null
+popd &> /dev/null
+
+total=$(cat scratch/* | wc -l)
+unique=$(sort -u scratch/* | wc -l)
+moistness=$(bc -lq <<< "$total / $unique")
+ideal=$(bc -lq <<< "1 + 1 / 3")
+mfactor=$(bc -lq <<< "if ($moistness > $ideal) $moistness - $ideal else $ideal - $moistness")
+
+rm -rf -- scratch
+
+printf '%d/%d (%.3f): %.3f\n' "$total" "$unique" "$moistness" "$mfactor"
+
