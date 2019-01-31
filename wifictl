@@ -15,6 +15,6 @@ case "$1" in
     stat)   perc=$(tail -n1 /proc/net/wireless | awk "/$WIFI_IFACE:/ { print int((\$3 / 70) * 100) }")
             netw=$(iw dev "$WIFI_IFACE" link | awk '/SSID:/ { print substr($0, index($0, $2)) }')
             printf '%s (%d%%)\n' "$netw" "$perc";;
-    reload) sudo kill -HUP wpa_supplicant;;
+    reload) sudo /usr/bin/kill -HUP wpa_supplicant;;
     *)      printf 'Valid commands: add, edit, open, list, login, del, scan, stat, reload\n';;
 esac
