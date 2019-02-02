@@ -4,13 +4,40 @@ IFACE_DIR='/sys/class/net'
 WIFI_IFACE="${WIFI_IFACE:-$(basename $(find /sys/class/net -name 'wl*' | head -n 1))}"
 WPA_SUPFILE="${WPA_SUPFILE:-/etc/wpa_supplicant/wpa_supplicant-$WIFI_IFACE.conf}"
 
+IFS='' read -r -d '' AWK_PROG <<'EOF'
+BEGIN {
+    FS = "ssid=\""
+    i = 0
+    last_network = 0
+    ignore = 0
+}
+
+{ if ( !ignore ) { a[i] = $0 } }
+
+/\}/ { ignore = 0 }
+
+$1 ~ /network=\{/ { last_network = i }
+
+$2 ~ SSID {
+    for ( j = last_network; j <= i; ++j ) { delete a[j] }
+
+    ignore = 1
+}
+
+{ i++ }
+
+END { for ( j = 0; j < i; ++j ) { if ( a[j] != "" ) { print a[j] } } }
+EOF
+
 case "$1" in
     add)    wpa_passphrase "$2" "$3" | sudo tee -a "${4:-$WPA_SUPFILE}" > /dev/null;;
     edit)   sudo $EDITOR "${2:-$WPA_SUPFILE}";;
     open)   printf 'network={\n\tssid="%s"\n\tkey_mgmt=NONE\n}\n' "$2" | sudo tee -a "${3:-$WPA_SUPFILE}" > /dev/null;;
     list)   awk -F'"' '/ssid/ { gsub(/".*/,"",$2); print $2}' "${2:-$WPA_SUPFILE}";;
     login)  exec $BROWSER "${2:-example.com}";;
-    del)    [[ -z "$2" ]] && sudo wpa_cli remove_network "$2" || printf 'pass a valid network id\n'; sudo wpa_cli save_config;;
+    del)    [[ -z "$2" ]] && (printf 'Pass a valid SSID\n'; exit 1)
+            awk -v SSID="$2" "$AWK_PROG" "${3:-$WPA_SUPFILE}" > /tmp/newwpa.conf
+            mv /tmp/newwpa.conf "$(3:-$WPA_SUPFILE}";;
     scan)   sudo iw dev "$WIFI_IFACE" scan | awk "/SSID: .*${2:-.+}.*/ { print substr(\$0, index(\$0, \$2)) }" | sort -u;;
     stat)   perc=$(tail -n1 /proc/net/wireless | awk "/$WIFI_IFACE:/ { print int((\$3 / 70) * 100) }")
             netw=$(iw dev "$WIFI_IFACE" link | awk '/SSID:/ { print substr($0, index($0, $2)) }')
