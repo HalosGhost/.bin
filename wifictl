@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-IFACE_DIR='/sys/class/net'
-WIFI_IFACE="${WIFI_IFACE:-$(basename $(find /sys/class/net -name 'wl*' | head -n 1))}"
+IFACE_DIR="${IFACE_DIR:-/sys/class/net}"
+WIFI_IFACE="${WIFI_IFACE:-$(basename "$(find "$IFACE_DIR" -name 'wl*' | head -n 1)")}"
 WPA_SUPFILE="${WPA_SUPFILE:-/etc/wpa_supplicant/wpa_supplicant-$WIFI_IFACE.conf}"
 
 IFS='' read -r -d '' AWK_PROG <<'EOF'
@@ -31,13 +31,13 @@ EOF
 
 case "$1" in
     add)    wpa_passphrase "$2" "$3" | sudo tee -a "${4:-$WPA_SUPFILE}" > /dev/null;;
-    edit)   sudo $EDITOR "${2:-$WPA_SUPFILE}";;
+    edit)   sudo "$EDITOR" "${2:-$WPA_SUPFILE}";;
     open)   printf 'network={\n\tssid="%s"\n\tkey_mgmt=NONE\n}\n' "$2" | sudo tee -a "${3:-$WPA_SUPFILE}" > /dev/null;;
     list)   awk -F'"' '/ssid/ { gsub(/".*/,"",$2); print $2}' "${2:-$WPA_SUPFILE}";;
-    login)  exec $BROWSER "${2:-example.com}";;
+    login)  exec "$BROWSER" "${2:-example.com}";;
     del)    [[ -z "$2" ]] && (printf 'Pass a valid SSID\n'; exit 1)
             awk -v SSID="$2" "$AWK_PROG" "${3:-$WPA_SUPFILE}" > /tmp/newwpa.conf
-            mv /tmp/newwpa.conf "${3:-$WPA_SUPFILE}";;
+            sudo mv /tmp/newwpa.conf "${3:-$WPA_SUPFILE}";;
     scan)   sudo iw dev "$WIFI_IFACE" scan | awk "/SSID: .*${2:-.+}.*/ { print substr(\$0, index(\$0, \$2)) }" | sort -u;;
     stat)   perc=$(tail -n1 /proc/net/wireless | awk "/$WIFI_IFACE:/ { print int((\$3 / 70) * 100) }")
             netw=$(iw dev "$WIFI_IFACE" link | awk '/SSID:/ { print substr($0, index($0, $2)) }')
