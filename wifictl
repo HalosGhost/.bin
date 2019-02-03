@@ -37,7 +37,7 @@ case "$1" in
     login)  exec $BROWSER "${2:-example.com}";;
     del)    [[ -z "$2" ]] && (printf 'Pass a valid SSID\n'; exit 1)
             awk -v SSID="$2" "$AWK_PROG" "${3:-$WPA_SUPFILE}" > /tmp/newwpa.conf
-            mv /tmp/newwpa.conf "$(3:-$WPA_SUPFILE}";;
+            mv /tmp/newwpa.conf "${3:-$WPA_SUPFILE}";;
     scan)   sudo iw dev "$WIFI_IFACE" scan | awk "/SSID: .*${2:-.+}.*/ { print substr(\$0, index(\$0, \$2)) }" | sort -u;;
     stat)   perc=$(tail -n1 /proc/net/wireless | awk "/$WIFI_IFACE:/ { print int((\$3 / 70) * 100) }")
             netw=$(iw dev "$WIFI_IFACE" link | awk '/SSID:/ { print substr($0, index($0, $2)) }')
