@@ -45,5 +45,5 @@ case "$1" in
             netw=$(iw dev "$WIFI_IFACE" link | awk '/SSID:/ { print substr($0, index($0, $2)) }')
             printf '%s (%d%%)\n' "$netw" "$perc";;
     reload) sudo /usr/bin/kill -HUP wpa_supplicant;;
-    *)      awk "$AWK_HELP" $(which wifictl);;
+    *)      awk "$AWK_HELP" "$0";;
 esac
