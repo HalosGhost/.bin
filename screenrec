@@ -1,3 +1,5 @@
 #!/bin/sh
 
-ffmpeg -video_size 2880x1620 -framerate 30 -f x11grab -i :0.0+0,0 -f pulse -ac 2 -i default 'output.mkv'
+RESOLUTION=$(xrandr | awk '/\*/ { print $1 }')
+
+ffmpeg -video_size "$RESOLUTION" -framerate 30 -f x11grab -i :0.0+0,0 -f pulse -ac 2 -i default 'output.mkv'
