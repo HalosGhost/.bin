@@ -2,16 +2,11 @@
 
 export QEMU_AUDIO_DRV=pa
 
-run_vm () {
-    (cd "$HOME/prj/vms/$1/$2"
-    qemu-system-x86_64 -m 4G \
-        -drive file=./disk.img,index=0,media=disk,format=raw \
-        -enable-kvm -cpu host -soundhw hda \
-        -net nic -net user,smb=/home/halosghost/prj/vms/shared)
-}
+pushd "$HOME/prj/vms/$1"
 
-case "$1" in
-    -w*) [[ "$3" == "-live" ]] && run_vm win "$2" || run_vm win "$2" -snapshot;;
-    -x*) [[ "$3" == "-live" ]] && run_vm osx "$2" || run_vm osx "$2" -snapshot;;
-esac
+args=("$@")
 
+qemu-system-x86_64 -m 4G \
+    -drive file=./disk.img,index=0,media=disk,format=raw \
+    -enable-kvm -cpu host -soundhw hda \
+    -net nic -net user,smb=/home/halosghost/prj/vms/shared "${args[@]:1}"
