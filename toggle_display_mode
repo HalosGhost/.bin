@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+CONFIG=$HOME/.config/display_mode
+INTERNAL='eDP-1'
+EXTERNAL='HDMI-1'
+
+case $(cat "$CONFIG") in
+    "$EXTERNAL")
+            xrandr --output "$EXTERNAL" --off
+            xrandr --output "$INTERNAL" --auto
+            echo "$INTERNAL" > "$CONFIG";;
+    "$INTERNAL"|*)
+        if [[ $(xrandr | grep "$EXTERNAL" | cut -d' ' -f2) == connected ]]; then
+            xrandr --output "$EXTERNAL" --auto
+            xrandr --output "$INTERNAL"  --off
+            echo "$EXTERNAL" > "$CONFIG"
+        fi;;
+esac
