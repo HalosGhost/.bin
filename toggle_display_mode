@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 
 CONFIG=$HOME/.config/display_mode
-INTERNAL='eDP-1'
-EXTERNAL='HDMI-1'
+DISPLAY_INTERNAL="${DISPLAY_INTERNAL:=eDP-1}"
+DISPLAY_EXTERNAL="${DISPLAY_EXTERNAL:=HDMI-1}"
 
 case $(cat "$CONFIG") in
-    "$EXTERNAL")
-            xrandr --output "$EXTERNAL" --off
-            xrandr --output "$INTERNAL" --auto
-            echo "$INTERNAL" > "$CONFIG";;
-    "$INTERNAL"|*)
-        if [[ $(xrandr | grep "$EXTERNAL" | cut -d' ' -f2) == connected ]]; then
-            xrandr --output "$EXTERNAL" --auto
-            xrandr --output "$INTERNAL"  --off
-            echo "$EXTERNAL" > "$CONFIG"
+    "$DISPLAY_EXTERNAL")
+            xrandr --output "$DISPLAY_EXTERNAL" --off
+            xrandr --output "$DISPLAY_INTERNAL" --auto
+            echo "$DISPLAY_INTERNAL" > "$CONFIG";;
+    "$DISPLAY_INTERNAL"|*)
+        if [[ $(xrandr | grep "$DISPLAY_EXTERNAL" | cut -d' ' -f2) == connected ]]; then
+            xrandr --output "$DISPLAY_EXTERNAL" --auto
+            xrandr --output "$DISPLAY_INTERNAL"  --off
+            echo "$DISPLAY_EXTERNAL" > "$CONFIG"
         fi;;
 esac
