@@ -6,9 +6,9 @@ DISPLAY_EXTERNAL="${DISPLAY_EXTERNAL:=HDMI-1}"
 
 case $(cat "$CONFIG") in
     "$DISPLAY_EXTERNAL")
-            xrandr --output "$DISPLAY_EXTERNAL" --off
-            xrandr --output "$DISPLAY_INTERNAL" --auto
-            echo "$DISPLAY_INTERNAL" > "$CONFIG";;
+        xrandr --output "$DISPLAY_EXTERNAL" --off
+        xrandr --output "$DISPLAY_INTERNAL" --auto
+        echo "$DISPLAY_INTERNAL" > "$CONFIG";;
     "$DISPLAY_INTERNAL"|*)
         if [[ $(xrandr | grep "$DISPLAY_EXTERNAL" | cut -d' ' -f2) == connected ]]; then
             xrandr --output "$DISPLAY_EXTERNAL" --auto
