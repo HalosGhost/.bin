@@ -35,6 +35,11 @@ if [[ "$cur_capacity" == 0 ]]; then
     cur_capacity=$(( "$cur_capacity_unit" / "$voltage" ))
 fi
 
+percent=$(read_stat capacity)
+if [[ "$cur_capacity" == 0 ]] && [[ "$max_capacity" != 0 ]]; then
+    cur_capacity=$(( "$max_capacity" * "$percent" / 100 ))
+fi
+
 seconds=0
 power=$(( -"$voltage" * "$rate" / 1000000 ))
 case "$(read_stat status)" in
@@ -58,7 +63,6 @@ if [[ "$seconds" != 0 ]]; then
     seconds=$(( "$seconds" - "$minutes" * 60 ))
 fi
 
-percent=$(read_stat capacity)
 printf '%d%% (%+.2lgW)' "$percent" "$power"
 
 if [[ "$hours" != 0 || "$minutes" != 0 || "$seconds" != 0 ]]; then
