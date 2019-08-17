@@ -5,13 +5,15 @@ DISPLAY_INTERNAL="${DISPLAY_INTERNAL:=eDP-1}"
 DISPLAY_EXTERNAL="${DISPLAY_EXTERNAL:=HDMI-1}"
 
 case "$1" in
-    status)
-        cat "$CONFIG";;
-
-    mirror)
+    extend)
         xrandr --output "$DISPLAY_INTERNAL" --auto
         xrandr --output "$DISPLAY_EXTERNAL" --auto --right-of "$DISPLAY_INTERNAL"
-        echo "$DISPLAY_INTERNAL $DISPLAY_EXTERNAL" > "$CONFIG";;
+        echo "$DISPLAY_INTERNAL+$DISPLAY_EXTERNAL" > "$CONFIG";;
+
+    mirror)
+        xrandr --output "$DISPLAY_INTERNAL" --auto \
+               --output "$DISPLAY_EXTERNAL" --same-as "$DISPLAY_INTERNAL"
+        echo "$DISPLAY_INTERNAL=$DISPLAY_EXTERNAL" > "$CONFIG";;
 
     toggle)
         case $(cat "$CONFIG") in
@@ -27,13 +29,16 @@ case "$1" in
                 fi;;
         esac;;
 
-    "$DISPLAY_EXTERNAL")
+    external|"$DISPLAY_EXTERNAL")
         xrandr --output "$DISPLAY_EXTERNAL" --off
         xrandr --output "$DISPLAY_INTERNAL" --auto
         echo "$DISPLAY_EXTERNAL" > "$CONFIG";;
 
-    "$DISPLAY_INTERNAL"|*)
+    internal|"$DISPLAY_INTERNAL")
         xrandr --output "$DISPLAY_EXTERNAL" --off
         xrandr --output "$DISPLAY_INTERNAL" --auto
         echo "$DISPLAY_INTERNAL" > "$CONFIG";;
+
+    status|*)
+        cat "$CONFIG";;
 esac
