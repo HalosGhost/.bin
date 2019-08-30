@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 CONFIG="$HOME/.config/display_mode"
 DISPLAY_INTERNAL="${DISPLAY_INTERNAL:-eDP-1}"
@@ -22,7 +22,7 @@ case "$1" in
                 xrandr --output "$DISPLAY_INTERNAL" --auto
                 echo "$DISPLAY_INTERNAL" > "$CONFIG";;
             "$DISPLAY_INTERNAL"|*)
-                if [[ $(xrandr | grep "$DISPLAY_EXTERNAL" | cut -d' ' -f2) == connected ]]; then
+                if test "$(xrandr | grep "$DISPLAY_EXTERNAL" | cut -d' ' -f2)" -eq connected; then
                     xrandr --output "$DISPLAY_EXTERNAL" --auto
                     xrandr --output "$DISPLAY_INTERNAL"  --off
                     echo "$DISPLAY_EXTERNAL" > "$CONFIG"
