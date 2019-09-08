@@ -37,7 +37,7 @@ case "$1" in
     open)   printf 'network={\n\tssid="%s"\n\tkey_mgmt=NONE\n}\n' "$2" | sudo tee -a "${3:-$WPA_SUPFILE}" > /dev/null;;
     list)   awk -F'"' '/ssid/ { gsub(/".*/,"",$2); print $2}' "${2:-$WPA_SUPFILE}";;
     login)  exec "$BROWSER" "${2:-example.com}";;
-    del)    test -z "$2" && (printf 'Pass a valid SSID\n'; exit 1)
+    delete) test -z "$2" && (printf 'Pass a valid SSID\n'; exit 1)
             awk -v SSID="$2" "$AWK_NET_DEL" "${3:-$WPA_SUPFILE}" > /tmp/newwpa.conf
             sudo mv /tmp/newwpa.conf "${3:-$WPA_SUPFILE}";;
     scan)   sudo iw dev "$WIFI_IFACE" scan | awk "/SSID: .*${2:-.+}.*/ { print substr(\$0, index(\$0, \$2)) }" | sort -u;;
