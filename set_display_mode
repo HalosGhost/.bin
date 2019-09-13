@@ -8,37 +8,37 @@ AWK_HELP='$1 ~ /.*)/ { gsub(/\|.*|).*/, "", $1); if ( $1 ~ /"/ ) { next; } a = $
 
 case "$1" in
     extend)
-        xrandr --output "$DISPLAY_INTERNAL" --auto
-        xrandr --output "$DISPLAY_EXTERNAL" --auto --right-of "$DISPLAY_INTERNAL"
+        xrandr --output "$DISPLAY_INTERNAL" --auto \
+               --output "$DISPLAY_EXTERNAL" --auto --right-of "$DISPLAY_INTERNAL"
         echo "$DISPLAY_INTERNAL+$DISPLAY_EXTERNAL" > "$CONFIG";;
 
     mirror)
-        xrandr --output "$DISPLAY_INTERNAL" --auto \
-               --output "$DISPLAY_EXTERNAL" --same-as "$DISPLAY_INTERNAL"
+        xrandr --output "$DISPLAY_EXTERNAL" --auto \
+               --output "$DISPLAY_INTERNAL" --auto --same-as "$DISPLAY_EXTERNAL"
         echo "$DISPLAY_INTERNAL=$DISPLAY_EXTERNAL" > "$CONFIG";;
 
     toggle)
         case $(cat "$CONFIG") in
             "$DISPLAY_EXTERNAL")
-                xrandr --output "$DISPLAY_EXTERNAL" --off
-                xrandr --output "$DISPLAY_INTERNAL" --auto
+                xrandr --output "$DISPLAY_EXTERNAL" --off \
+                       --output "$DISPLAY_INTERNAL" --auto
                 echo "$DISPLAY_INTERNAL" > "$CONFIG";;
             "$DISPLAY_INTERNAL"|*)
-                if test "$(xrandr | grep "$DISPLAY_EXTERNAL" | cut -d' ' -f2)" -eq connected; then
-                    xrandr --output "$DISPLAY_EXTERNAL" --auto
-                    xrandr --output "$DISPLAY_INTERNAL"  --off
+                if test "$(xrandr | grep "$DISPLAY_EXTERNAL" | cut -d' ' -f2)" = connected; then
+                    xrandr --output "$DISPLAY_EXTERNAL" --auto \
+                           --output "$DISPLAY_INTERNAL" --off
                     echo "$DISPLAY_EXTERNAL" > "$CONFIG"
                 fi;;
         esac;;
 
     external|"$DISPLAY_EXTERNAL")
-        xrandr --output "$DISPLAY_EXTERNAL" --off
-        xrandr --output "$DISPLAY_INTERNAL" --auto
+        xrandr --output "$DISPLAY_INTERNAL" --off \
+               --output "$DISPLAY_EXTERNAL" --auto
         echo "$DISPLAY_EXTERNAL" > "$CONFIG";;
 
     internal|"$DISPLAY_INTERNAL")
-        xrandr --output "$DISPLAY_EXTERNAL" --off
-        xrandr --output "$DISPLAY_INTERNAL" --auto
+        xrandr --output "$DISPLAY_EXTERNAL" --off \
+               --output "$DISPLAY_INTERNAL" --auto
         echo "$DISPLAY_INTERNAL" > "$CONFIG";;
 
     help) awk "$AWK_HELP" "$0";;
