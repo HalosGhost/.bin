@@ -2,11 +2,18 @@
 
 export QEMU_AUDIO_DRV=pa
 
-pushd "$HOME/prj/vms/$1"
+run_vm () {
+    (cd "$HOME/prj/vms/"
+    qemu-system-x86_64 -m 4G \
+        -drive file=./"$1.img",index=0,media=disk,format=qcow2 \
+        -enable-kvm -cpu host,hv_relaxed,hv_spinlocks=0x1fff,hv_vapic,hv_time \
+        -device piix3-usb-uhci \
+        -device usb-tablet \
+        -net user,smb=$HOME/prj/vms/shared \
+        -net nic,model=virtio \
+        )
+        #-cdrom ./"$1.iso" \
+        #-soundhw hda \
+}
 
-args=("$@")
-
-qemu-system-x86_64 -m 4G \
-    -drive file=./disk.img,index=0,media=disk,format=raw \
-    -enable-kvm -cpu host -soundhw hda \
-    -net nic -net user,smb=/home/halosghost/prj/vms/shared "${args[@]:1}"
+run_vm "$@"
