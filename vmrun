@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
 
 export QEMU_AUDIO_DRV=pa
+VM_PATH="${VM_PATH:-"$HOME/prj/vms"}"
 
 run_vm () {
-    (cd "$HOME/prj/vms/"
+    pushd "$VM_PATH"
     qemu-system-x86_64 -m 4G \
         -drive file=./"$1.img",index=0,media=disk,format=qcow2 \
         -enable-kvm -cpu host,hv_relaxed,hv_spinlocks=0x1fff,hv_vapic,hv_time \
         -device piix3-usb-uhci \
         -device usb-tablet \
-        -net user,smb=$HOME/prj/vms/shared \
-        -net nic,model=virtio \
-        )
+        -net user,smb="$VM_PATH"/shared \
+        -net nic,model=virtio
         #-cdrom ./"$1.iso" \
         #-soundhw hda \
+    popd
 }
 
 run_vm "$@"
