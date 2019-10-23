@@ -1,0 +1,16 @@
+#!/bin/sh
+
+RESOLUTION=$(xrandr | awk '/\*/ { print $1 }')
+
+declare EXT
+declare VIDARGS
+declare AUDARGS='-f pulse -ac 2 -i default -b:a 320k'
+
+if [[ "$1" = '-a' ]]; then
+    EXT=m4a
+else
+    EXT=mkv
+    VIDARGS="-video_size $RESOLUTION -framerate 30 -f x11grab -i :0.0+0,0"
+fi
+
+ffmpeg $VIDARGS $AUDARGS "output.$EXT"
