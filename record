@@ -2,18 +2,16 @@
 
 RESOLUTION=$(xrandr | awk '/\*/ { print $1 }')
 
-declare EXT
-declare VIDARGS
-declare AUDARGS='-f pulse -ac 2 -i default -b:a 320k'
-declare FILENAME="${2:-recording}"
-if [[ "$1" = '-a' ]]; then
-    EXT=m4a
-else
+EXT=m4a
+AUDARGS='-f pulse -ac 2 -i default -b:a 320k'
+FILENAME="${2:-recording}"
+
+if [ "$1" != '-a' ]; then
     EXT=mkv
     VIDARGS="-video_size $RESOLUTION -framerate 30 -f x11grab -i :0.0+0,0"
 fi
 
-declare LAST=$(find . -maxdepth 1 -name "${FILENAME}*.${EXT}" | wc -l)
-declare COUNT=$(test "$LAST" -eq 0 || echo "-$LAST")
+LAST=$(find . -maxdepth 1 -name "${FILENAME}*.${EXT}" | wc -l)
+COUNT=$(test "$LAST" -eq 0 || echo "-$LAST")
 
 ffmpeg $VIDARGS $AUDARGS "$FILENAME$COUNT.$EXT"
