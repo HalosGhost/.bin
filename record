@@ -6,7 +6,7 @@ EXT=m4a
 AUDARGS='-f pulse -ac 2 -i default -b:a 320k'
 FILENAME="${2:-recording}"
 
-if [ "$1" != '-a' ]; then
+if test "$1" = '-v'; then
     EXT=mkv
     VIDARGS="-video_size $RESOLUTION -framerate 30 -f x11grab -i :0.0+0,0"
 fi
