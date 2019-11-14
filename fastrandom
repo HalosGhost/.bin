@@ -1,0 +1,10 @@
+#!/bin/sh
+# Grab a 256bit key from /dev/urandom, then AES encrypt /dev/zero with it
+# Extremely fast random data
+
+if [ -t 1 ]; then
+        echo "You probably don't want to print binary to your terminal."
+        exit 1
+fi
+
+openssl enc -aes-256-ctr -pass pass:"$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | base64)" -nosalt < /dev/zero
