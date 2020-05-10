@@ -1,8 +1,8 @@
 #!/usr/bin/env sh
 
 CONFIG="$HOME/.config/display_mode"
-DISPLAY_INTERNAL="${DISPLAY_INTERNAL:-eDP-1}"
-DISPLAY_EXTERNAL="${DISPLAY_EXTERNAL:-HDMI-1}"
+DISPLAY_INTERNAL="${DISPLAY_INTERNAL:-eDP1}"
+DISPLAY_EXTERNAL="${DISPLAY_EXTERNAL:-HDMI1}"
 
 AWK_HELP='$1 ~ /.*)/ { gsub(/\|.*|).*/, "", $1); if ( $1 ~ /"/ ) { next; } a = $1 " " a } END { printf("valid commands: %s\n", a)}'
 
