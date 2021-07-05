@@ -1,14 +1,23 @@
 #!/bin/sh
 
-RESOLUTION=$(xrandr | awk '/\*/ { print $1 }')
-
 EXT=m4a
 AUDARGS='-f pulse -ac 2 -i default -b:a 320k'
 FILENAME="${2:-recording}"
 
-if test "$1" = '-v'; then
+if test "$1" != '-a'; then
     EXT=mkv
-    VIDARGS="-video_size $RESOLUTION -framerate 30 -f x11grab -i :0.0+0,0"
+
+    if test "$1" = '-v'; then
+        DEVICE=":0.0+0,0"
+        FMT='x11grab'
+        RESOLUTION=$(xrandr | awk '/\*/ { print $1 }')
+    elif test "$1" = '-w'; then
+        DEVICE="${WEBCAM:-$(v4l2-ctl --list-devices | head -2 | tail -1 | cut -f 2)}"
+        FMT='v4l2'
+        RESOLUTION=$(ffmpeg -f v4l2 -list_formats all -i "$DEVICE" 2>&1 | awk '/.*Compressed.*/ { print $(NF) }')
+    fi
+
+    VIDARGS="-f $FMT -video_size $RESOLUTION -framerate 30 -i $DEVICE"
 fi
 
 LAST=$(find . -maxdepth 1 -name "${FILENAME}*.${EXT}" | wc -l)
