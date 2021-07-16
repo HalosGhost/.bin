@@ -1,8 +1,11 @@
 #!/bin/sh
 
-EXT=m4a
-AUDARGS='-f pulse -ac 2 -i default -b:a 320k'
 FILENAME="${2:-recording}"
+
+EXT=opus
+AUDIO_SOURCE="${AUDIO_SOURCE:-alsa_input.pci-0000_00_1b.0.analog-stereo}"
+AUDARGS="-f pulse -ac 2 -i $AUDIO_SOURCE"
+CODECARGS="-c:a libopus"
 
 if test "$1" != '-a'; then
     EXT=mkv
@@ -17,10 +20,11 @@ if test "$1" != '-a'; then
         RESOLUTION=$(ffmpeg -f v4l2 -list_formats all -i "$DEVICE" 2>&1 | awk '/.*Compressed.*/ { print $(NF) }')
     fi
 
-    VIDARGS="-f $FMT -video_size $RESOLUTION -framerate 30 -i $DEVICE"
+    VIDARGS="-f $FMT -video_size $RESOLUTION -framerate 15 -thread_queue_size 128 -i $DEVICE"
+    CODECARGS="-c:v libx265 -crf 0 -preset ultrafast -tune zerolatency -bufsize 3000k $CODECARGS"
 fi
 
 LAST=$(find . -maxdepth 1 -name "${FILENAME}*.${EXT}" | wc -l)
 COUNT=$(test "$LAST" -eq 0 || echo "-$LAST")
 
-ffmpeg $VIDARGS $AUDARGS "$FILENAME$COUNT.$EXT"
+ffmpeg $VIDARGS $AUDARGS $CODECARGS "$FILENAME$COUNT.$EXT"
