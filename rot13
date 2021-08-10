@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+if [ "$#" -eq 0 ]; then
+    tr 'A-Za-z' 'N-ZA-Mn-za-m'
+else
+    echo "$@" | tr 'A-Za-z' 'N-ZA-Mn-za-m'
+fi
