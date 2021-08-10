@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 BAT="${BAT:=BAT0}"
 
@@ -8,35 +8,35 @@ BAT="${BAT:=BAT0}"
 
 read_stat() {
     file=/sys/class/power_supply/"$BAT"/"$1"
-    [[ -e "$file" ]] && cat "$file" || echo 0
+    test -e "$file" && cat "$file" || echo 0
 }
 
 rate=$(read_stat power_now)
-if [[ "$rate" == 0 ]]; then
+if test "$rate" == 0; then
     rate=$(read_stat current_now)
 fi
 rate=$(( "$rate" / 1000 ))
 
-while [ $(( "$rate" >= 10000 )) -eq 1 ]; do
+while test $(( "$rate" >= 10000 )) -eq 1; do
     rate=$(( "$rate" / 10 ))
 done
 
 voltage=$(( "$(read_stat voltage_now)" / 1000 ))
 
 max_capacity=$(( "$(read_stat charge_full)" / 1000 ))
-if [[ "$max_capacity" == 0 ]]; then
+if test "$max_capacity" == 0; then
     max_capacity_unit=$(read_stat energy_full)
     max_capacity=$(( "$max_capacity_unit" / "$voltage" ))
 fi
 
 cur_capacity=$(( "$(read_stat charge_now)" / 1000 ))
-if [[ "$cur_capacity" == 0 ]]; then
+if test "$cur_capacity" == 0; then
     cur_capacity_unit=$(read_stat energy_now)
     cur_capacity=$(( "$cur_capacity_unit" / "$voltage" ))
 fi
 
 percent=$(read_stat capacity)
-if [[ "$cur_capacity" == 0 ]] && [[ "$max_capacity" != 0 ]]; then
+if test "$cur_capacity" == 0 -a "$max_capacity" != 0; then
     cur_capacity=$(( "$max_capacity" * "$percent" / 100 ))
 fi
 
@@ -56,7 +56,7 @@ esac
 
 hours=0
 minutes=0
-if [[ "$seconds" != 0 ]]; then
+if test "$seconds" != 0; then
     hours=$(( "$seconds" / 3600 ))
     seconds=$(( "$seconds" - "$hours" * 3600 ))
     minutes=$(( "$seconds" / 60 ))
@@ -65,7 +65,7 @@ fi
 
 printf '%d%% (%+.2lgW)' "$percent" "$power"
 
-if [[ "$hours" != 0 || "$minutes" != 0 || "$seconds" != 0 ]]; then
+if test "$hours" != 0 -o "$minutes" != 0 -o "$seconds" != 0; then
     printf '; %.2d:%.2d:%.2d till %s' "$hours" "$minutes" "$seconds" "$when"
 fi
 
