@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+maim -s "$HOME"/img/scrn-"$(date +'%s')".png
