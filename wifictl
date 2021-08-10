@@ -1,5 +1,6 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
+AUTH_CMD="${AUTH_CMD:-sudo}"
 IFACE_DIR="${IFACE_DIR:-/sys/class/net}"
 WIFI_IFACE="${WIFI_IFACE:-$(basename "$(find "$IFACE_DIR" -name 'wl*' | head -n 1)")}"
 WPA_SUPFILE="${WPA_SUPFILE:-/etc/wpa_supplicant/wpa_supplicant-$WIFI_IFACE.conf}"
@@ -32,20 +33,20 @@ EOF
 AWK_HELP='$1 ~ /.*)/ { gsub(/)/,"",$1); a = a " " $1 } END { gsub(/\*/,"",a); print "valid commands:" a }'
 
 case "$1" in
-    add)    wpa_passphrase "$2" "$3" | sudo tee -a "${4:-$WPA_SUPFILE}" > /dev/null;;
-    edit)   sudo "$EDITOR" "${2:-$WPA_SUPFILE}";;
-    open)   printf 'network={\n\tssid="%s"\n\tkey_mgmt=NONE\n}\n' "$2" | sudo tee -a "${3:-$WPA_SUPFILE}" > /dev/null;;
+    add)    wpa_passphrase "$2" "$3" | "$AUTH_CMD" tee -a "${4:-$WPA_SUPFILE}" > /dev/null;;
+    edit)   "$AUTH_CMD" "$EDITOR" "${2:-$WPA_SUPFILE}";;
+    open)   printf 'network={\n\tssid="%s"\n\tkey_mgmt=NONE\n}\n' "$2" | "$AUTH_CMD" tee -a "${3:-$WPA_SUPFILE}" > /dev/null;;
     list)   awk -F'"' '/ssid/ { gsub(/".*/,"",$2); print $2}' "${2:-$WPA_SUPFILE}";;
     login)  exec "$BROWSER" "${2:-example.com}";;
     delete) test -z "$2" && (printf 'Pass a valid SSID\n'; exit 1)
             awk -v SSID="$2" "$AWK_NET_DEL" "${3:-$WPA_SUPFILE}" > /tmp/newwpa.conf
-            sudo mv /tmp/newwpa.conf "${3:-$WPA_SUPFILE}";;
-    scan)   sudo iw dev "$WIFI_IFACE" scan | awk "/SSID: .*${2:-.+}.*/ { print substr(\$0, index(\$0, \$2)) }" | sort -u;;
+            "$AUTH_CMD" mv /tmp/newwpa.conf "${3:-$WPA_SUPFILE}";;
+    scan)   "$AUTH_CMD" iw dev "$WIFI_IFACE" scan | awk "/SSID: .*${2:-.+}.*/ { print substr(\$0, index(\$0, \$2)) }" | sort -u;;
     status) perc=$(tail -n1 /proc/net/wireless | awk "/$WIFI_IFACE:/ { print int((\$3 / 70) * 100) }")
             netw=$(iw dev "$WIFI_IFACE" link | awk '/SSID:/ { print substr($0, index($0, $2)) }')
             printf '%s (%d%%)\n' "$netw" "$perc";;
-    reload) sudo /usr/bin/kill -HUP wpa_supplicant;;
-    stop)   sudo systemctl stop wpa_supplicant@"$WIFI_IFACE";;
-    start)  sudo systemctl start wpa_supplicant@"$WIFI_IFACE";;
+    reload) "$AUTH_CMD" /usr/bin/kill -HUP wpa_supplicant;;
+    stop)   "$AUTH_CMD" systemctl stop wpa_supplicant@"$WIFI_IFACE";;
+    start)  "$AUTH_CMD" systemctl start wpa_supplicant@"$WIFI_IFACE";;
     *)      awk "$AWK_HELP" "$0";;
 esac
