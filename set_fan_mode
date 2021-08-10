@@ -1,0 +1,43 @@
+#!/usr/bin/env sh
+
+AUTH_CMD="${AUTH_CMD:-sudo}"
+CONFIG="$HOME/.config/fan_mode"
+FAN_FULL="${FAN_FULL:-full-speed}"
+FAN_AUTO="${FAN_AUTO:-auto}"
+
+FAN_SPEED_FILE="${FAN_SPEED_FILE:-/proc/acpi/ibm/fan}"
+
+AWK_HELP='$1 ~ /.*)/ { gsub(/\|.*|).*/, "", $1); if ( $1 ~ /"/ ) { next; } a = $1 " " a } END { printf("valid commands: %s\n", a)}'
+
+case "$1" in
+    toggle)
+        case $(cat "$CONFIG") in
+            "$FAN_AUTO")
+                echo "level $FAN_FULL" | "$AUTH_CMD" tee "$FAN_SPEED_FILE" > /dev/null
+                echo "$FAN_FULL" > "$CONFIG";;
+
+            "$FAN_FULL"|*)
+                echo "level $FAN_AUTO" | "$AUTH_CMD" tee "$FAN_SPEED_FILE" > /dev/null
+                echo "$FAN_AUTO" > "$CONFIG";;
+        esac;;
+
+    full|"$FAN_FULL")
+        echo "level $FAN_FULL" | "$AUTH_CMD" tee "$FAN_SPEED_FILE" > /dev/null
+        echo "$FAN_FULL" > "$CONFIG";;
+
+    auto|"$FAN_AUTO")
+        echo "level $FAN_AUTO" | "$AUTH_CMD" tee "$FAN_SPEED_FILE" > /dev/null
+        echo "$FAN_AUTO" > "$CONFIG";;
+
+    0|1|2|3|4|5|6|7)
+        echo "level $1" | "$AUTH_CMD" tee "$FAN_SPEED_FILE" > /dev/null
+        echo "$1" > "$CONFIG";;
+
+    detail)
+        cat "$FAN_SPEED_FILE";;
+
+    help) awk "$AWK_HELP" "$0";;
+
+    status|*)
+        cat "$CONFIG";;
+esac
