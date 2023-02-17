@@ -1,52 +1,103 @@
 #!/usr/bin/env sh
 
-AUTH_CMD="${AUTH_CMD:-sudo}"
+if test "$EUID" -ne 0; then
+    AUTH_CMD="${AUTH_CMD:-sudo}"
+else
+    AUTH_CMD=
+fi
+
 IFACE_DIR="${IFACE_DIR:-/sys/class/net}"
-WIFI_IFACE="${WIFI_IFACE:-$(basename "$(find "$IFACE_DIR" -name 'wl*' | head -n 1)")}"
-WPA_SUPFILE="${WPA_SUPFILE:-/etc/wpa_supplicant/wpa_supplicant-$WIFI_IFACE.conf}"
+FALLBACK_DEV="$(basename $(find "$IFACE_DIR" -name 'wl*' | head -n 1))"
+WIFI_IFACE="${WIFI_IFACE:-$FALLBACK_DEV}"
+NETWORK_DIR='/etc/wpa_supplicant/networks.d'
+CONF="/etc/wpa_supplicant/wpa_supplicant-$WIFI_IFACE.conf"
 
-IFS='' read -r -d '' AWK_NET_DEL <<'EOF'
-BEGIN {
-    FS = "ssid=\""
-    i = 0
-    last_network = 0
-    ignore = 0
-}
+IMAGE_VIEWER="${IMAGE_VIEWER:-imv}"
+EDITOR="${EDITOR:-${VISUAL:-vi}}"
 
-{ if ( !ignore ) { a[i] = $0 } }
-
-/\}/ { ignore = 0 }
-
-$1 ~ /network=\{/ { last_network = i }
-
-$2 ~ SSID {
-    for ( j = last_network; j <= i; ++j ) { delete a[j] }
-
-    ignore = 1
-}
-
-{ i++ }
-
-END { for ( j = 0; j < i; ++j ) { if ( a[j] != "" ) { print a[j] } } }
+IFS='' read -r -d '' AWK_HELP <<'EOF'
+$1 ~ /.*)/ { gsub(/[)]/,"",$1); a = a " " $1 }
+END { gsub(/[*]/,"",a); print "valid commands:" a }
 EOF
 
-AWK_HELP='$1 ~ /.*)/ { gsub(/)/,"",$1); a = a " " $1 } END { gsub(/\*/,"",a); print "valid commands:" a }'
+start () {
+    "$AUTH_CMD" systemctl start systemd-networkd.service
+    "$AUTH_CMD" systemctl start systemd-resolved.service
+    "$AUTH_CMD" systemctl start wpa_supplicant@"$WIFI_IFACE"
+}
+
+stop () {
+    "$AUTH_CMD" systemctl stop systemd-networkd.service
+    "$AUTH_CMD" systemctl stop systemd-resolved.service
+    "$AUTH_CMD" systemctl stop wpa_supplicant@"$WIFI_IFACE"
+}
+
+reload () {
+    "$AUTH_CMD" /usr/bin/kill -HUP wpa_supplicant
+}
+
+collate () {
+    TEMP_D="$(mktemp -d)"
+    for i in "$NETWORK_DIR"/*; do
+        cp -- "$i" "$TEMP_D"/
+    done
+
+    # if specified, set priority for specified network high
+    if test "$1" -a -s "$TEMP_D/$1.network"; then
+        specified=$(grep 'priority' "$TEMP_D/$1.network")
+        if test -n "$specified"; then
+            sed -e 's/priority=.*/priority=100/' -i "$TEMP_D/$1.network"
+        else
+            sed -e 's/}/\tpriority=100\n}/' -i "$TEMP_D/$1.network"
+        fi
+    fi
+
+    "$AUTH_CMD" mv "$CONF" "$CONF.bak"
+    : | "$AUTH_CMD" tee "$CONF" > /dev/null
+
+    for i in "$TEMP_D"/*; do
+        "$AUTH_CMD" tee -a "$CONF" < "$i" > /dev/null
+    done
+    rm -rf -- "$TEMP_D"
+    "$AUTH_CMD" rm -rf -- "$CONF.bak"
+}
 
 case "$1" in
-    add)    wpa_passphrase "$2" "$3" | "$AUTH_CMD" tee -a "${4:-$WPA_SUPFILE}" > /dev/null;;
-    edit)   "$AUTH_CMD" "$EDITOR" "${2:-$WPA_SUPFILE}";;
-    open)   printf 'network={\n\tssid="%s"\n\tkey_mgmt=NONE\n}\n' "$2" | "$AUTH_CMD" tee -a "${3:-$WPA_SUPFILE}" > /dev/null;;
-    list)   awk -F'"' '/ssid/ { gsub(/".*/,"",$2); print $2}' "${2:-$WPA_SUPFILE}";;
-    login)  exec "$BROWSER" "${2:-example.com}";;
-    delete) test -z "$2" && (printf 'Pass a valid SSID\n'; exit 1)
-            awk -v SSID="$2" "$AWK_NET_DEL" "${3:-$WPA_SUPFILE}" > /tmp/newwpa.conf
-            "$AUTH_CMD" mv /tmp/newwpa.conf "${3:-$WPA_SUPFILE}";;
-    scan)   "$AUTH_CMD" iw dev "$WIFI_IFACE" scan | awk "/SSID: .*${2:-.+}.*/ { print substr(\$0, index(\$0, \$2)) }" | sort -u;;
-    status) perc=$(tail -n1 /proc/net/wireless | awk "/$WIFI_IFACE:/ { print int((\$3 / 70) * 100) }")
-            netw=$(iw dev "$WIFI_IFACE" link | awk '/SSID:/ { print substr($0, index($0, $2)) }')
-            printf '%s (%d%%)\n' "$netw" "$perc";;
-    reload) "$AUTH_CMD" /usr/bin/kill -HUP wpa_supplicant;;
-    stop)   "$AUTH_CMD" systemctl stop wpa_supplicant@"$WIFI_IFACE";;
-    start)  "$AUTH_CMD" systemctl start wpa_supplicant@"$WIFI_IFACE";;
-    *)      awk "$AWK_HELP" "$0";;
+    add)
+        NEW=''
+        if test $# -ge 3; then
+            NEW="$(wpa_passphrase "$2" "$3")"
+        elif test $# -eq 2; then
+            NEW="$(printf 'network={\n\tssid="%s"\n\tkey_mgmt=NONE\n}\n' "$2")"
+        else
+            printf 'Cannot add a network without an SSID\n'
+            exit 1
+        fi
+        echo "$NEW" | "$AUTH_CMD" tee "$NETWORK_DIR/$2.network" > /dev/null;;
+
+    qr)
+        DATA="$(printf 'WIFI:T:WPA;S:%s;P:%s;;' "$2" "$3")"
+        qrencode "$DATA" -o /dev/stdout | "$IMAGE_VIEWER" -;;
+
+    scan)
+        PROG="NF >= 2 && /SSID: ${2:-.+}/ { print \$2 }"
+        "$AUTH_CMD" iw dev "$WIFI_IFACE" scan | awk -F':' "$PROG" | sort -u;;
+
+    status)
+        perc=$(tail -n1 /proc/net/wireless | awk "/$WIFI_IFACE:/ { print int((\$3 / 70) * 100) }")
+        netw=$(iw dev "$WIFI_IFACE" link | awk '/SSID:/ { print substr($0, index($0, $2)) }')
+        printf '%s (%d%%)\n' "$netw" "$perc";;
+
+    connect)  collate "$2"; reload;;
+    delete)   "$AUTH_CMD" rm -- "$NETWORK_DIR/$2.network";;
+    devices)  ls -1 "$IFACE_DIR";;
+    list)     grep ssid "$NETWORK_DIR"/*.network | cut -d'"' -f2;;
+    login)    exec "$BROWSER" "${2:-http://example.com}";;
+    monitor)  watch "$0" status;;
+    refresh)  collate; reload;;
+    reload)   reload;;
+    restart)  stop; start;;
+    start)    start;;
+    stop)     stop;;
+    *)        awk "$AWK_HELP" "$0";;
 esac
